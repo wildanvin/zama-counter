@@ -1,9 +1,9 @@
 import { ContractMethodArgs, Typed } from "ethers";
-import { ethers } from "hardhat";
 
+// import { ethers } from "hardhat";
 import { TypedContractMethod } from "../types/common";
 
-export const waitForBlock = (blockNumber: bigint) => {
+export const waitForBlock = (blockNumber: bigint, ethers: any) => {
   return new Promise((resolve, reject) => {
     const waitBlock = async (currentBlock: number) => {
       // console.log(`Block ${currentBlock} reached! Waiting ${blockNumber}...`);
@@ -13,7 +13,7 @@ export const waitForBlock = (blockNumber: bigint) => {
         resolve(blockNumber);
       }
     };
-    ethers.provider.on("block", waitBlock).catch((err) => {
+    ethers.provider.on("block", waitBlock).catch((err: any) => {
       reject(err);
     });
   });

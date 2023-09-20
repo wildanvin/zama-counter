@@ -1,5 +1,4 @@
 import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/dist/src/signer-with-address";
-import { ethers } from "hardhat";
 
 export interface Signers {
   alice: SignerWithAddress;
@@ -8,7 +7,7 @@ export interface Signers {
   dave: SignerWithAddress;
 }
 
-export const getSigners = async (): Promise<Signers> => {
+export const getSigners = async (ethers: any): Promise<Signers> => {
   const signers = await ethers.getSigners();
   return {
     alice: signers[0],

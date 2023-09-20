@@ -8,7 +8,7 @@ import { deployEncryptedERC20Fixture } from "./EncryptedERC20.fixture";
 
 describe("EncryptedERC20", function () {
   before(async function () {
-    this.signers = await getSigners();
+    this.signers = await getSigners(ethers);
   });
 
   beforeEach(async function () {

@@ -1,7 +1,7 @@
 import { Signer } from "ethers";
 import fhevmjs, { FhevmInstance } from "fhevmjs";
-import { ethers as hethers } from "hardhat";
 
+// import { ethers as hethers } from "hardhat";
 import type { Signers } from "./signers";
 import { FhevmInstances } from "./types";
 
@@ -10,7 +10,7 @@ let chainId: number;
 
 export const createInstances = async (
   contractAddress: string,
-  ethers: typeof hethers,
+  ethers: any,
   accounts: Signers,
 ): Promise<FhevmInstances> => {
   if (!publicKey || !chainId) {

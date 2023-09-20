@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { ethers } from "ethers";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -7,7 +6,8 @@ dotenv.config();
 
 const getEthereumAddress =
   (index: number = 0) =>
-  async (_taskArgs: unknown, _: HardhatRuntimeEnvironment) => {
+  async (_taskArgs: unknown, hre: HardhatRuntimeEnvironment) => {
+    const { ethers } = hre;
     const words = process.env.MNEMONIC!;
     const mnemonic = ethers.Mnemonic.fromPhrase(words);
     if (!mnemonic) {
