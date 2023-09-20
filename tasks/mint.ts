@@ -9,7 +9,7 @@ task("task:mint")
   .addParam("mint", "Tokens to mint")
   .addParam("account", "Specify which account [alice, bob, carol, dave]")
   .setAction(async function (taskArguments: TaskArguments, hre) {
-    const { ethers, deployments } = hre;
+    const {ethers, deployments} = hre;
     const EncryptedERC20 = await deployments.get("EncryptedERC20");
     const signers = await getSigners(ethers);
 

@@ -157,7 +157,7 @@ Note: by default, the local network is used. One can change the network, check
 Run the `mint` task on the local network:
 
 ```sh
-pnpm task:mint --network local --mint 1000 --account 0
+pnpm task:mint --network local --mint 1000 --account alice
 ```
 
 ### Test
@@ -212,12 +212,10 @@ pnpm clean
 
 #### Deploy EncryptedERC20
 
-[TODO]: this command does not work on my side, please check it!
-
 Deploy a new instance of the EncryptedERC20 contract via a task:
 
 ```sh
-pnpm task:deployEncryptedERC20
+pnpm task:deployERC20
 ```
 
 ## Tips
@@ -236,7 +234,7 @@ on/off.
 
 ## Local development with Docker
 
-Not ready yet...
+Please check Evmos repository to be able to build FhEVM from sources. 
 
 ## License
 
