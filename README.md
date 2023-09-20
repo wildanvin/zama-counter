@@ -149,8 +149,26 @@ Deploy the ERC20 to local network:
 pnpm deploy:contracts
 ```
 
-Note: by default, the local network is used. One can change the network, check
+Notes:
+<br />
+<details>
+<summary>Error: cannot get the transaction for EncryptedERC20's previous deployment</summary>
+
+One can delete the local folder in deployments:
+```bash
+rm -r deployments/local/    
+```
+
+</details>
+
+<details>
+<summary>Info: by default, the local network is used</summary>
+
+One can change the network, check
 [hardhat config file](./hardhat.config.ts).
+
+</details>
+<br />
 
 #### Mint
 
