@@ -3,6 +3,7 @@ import { ethers } from "hardhat";
 
 import { createInstances } from "../instance";
 import { getSigners } from "../signers";
+import { createTransaction } from "../utils";
 import { deployEncryptedERC20Fixture } from "./EncryptedERC20.fixture";
 
 describe("EncryptedERC20", function () {
@@ -19,7 +20,7 @@ describe("EncryptedERC20", function () {
 
   it("should mint the contract", async function () {
     const encryptedAmount = this.instances.alice.encrypt32(1000);
-    const transaction = await this.erc20.mint(encryptedAmount);
+    const transaction = await createTransaction(this.erc20.mint, encryptedAmount);
     await transaction.wait();
     // Call the method
     const token = this.instances.alice.getTokenSignature(this.contractAddress) || {
@@ -39,11 +40,15 @@ describe("EncryptedERC20", function () {
 
   it("should transfer tokens between two users", async function () {
     const encryptedAmount = this.instances.alice.encrypt32(10000);
-    const transaction = await this.erc20.mint(encryptedAmount);
+    const transaction = await createTransaction(this.erc20.mint, encryptedAmount);
     await transaction.wait();
 
     const encryptedTransferAmount = this.instances.alice.encrypt32(1337);
-    const tx = await this.erc20["transfer(address,bytes)"](this.signers.bob.address, encryptedTransferAmount);
+    const tx = await createTransaction(
+      this.erc20["transfer(address,bytes)"],
+      this.signers.bob.address,
+      encryptedTransferAmount,
+    );
     await tx.wait();
 
     const tokenAlice = this.instances.alice.getTokenSignature(this.contractAddress)!;
