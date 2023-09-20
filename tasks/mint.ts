@@ -2,7 +2,8 @@ import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
 import { createInstances } from "../test/instance";
-import { getSigners } from "../test/signers";
+import { Signers, getSigners } from "../test/signers";
+import { FhevmInstances } from "../test/types";
 
 task("task:mint")
   .addParam("mint", "Tokens to mint")
@@ -17,8 +18,8 @@ task("task:mint")
     const encryptedERC20 = await ethers.getContractAt("EncryptedERC20", EncryptedERC20.address);
 
     await encryptedERC20
-      .connect((signers as any)[taskArguments.account])
-      .mint((instances as any)[taskArguments.account].encrypt32(+taskArguments.mint));
+      .connect(signers[taskArguments.account as keyof Signers])
+      .mint(instances[taskArguments.account as keyof FhevmInstances].encrypt32(+taskArguments.mint));
 
     console.log("Mint done: ", taskArguments.mint);
   });
