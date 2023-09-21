@@ -90,7 +90,7 @@ Start a local fhevm docker container that inlcudes everything needed to deploy F
 pnpm fhevm:start
 ```
 
-To stop ^C or:
+To stop:
 
 ```sh
 pnpm fhevm:stop
@@ -149,15 +149,33 @@ Deploy the ERC20 to local network:
 pnpm deploy:contracts
 ```
 
-Note: by default, the local network is used. One can change the network, check
-[hardhat config file](./hardhat.config.ts).
+Notes: <br />
+
+<details>
+<summary>Error: cannot get the transaction for EncryptedERC20's previous deployment</summary>
+
+One can delete the local folder in deployments:
+
+```bash
+rm -r deployments/local/
+```
+
+</details>
+
+<details>
+<summary>Info: by default, the local network is used</summary>
+
+One can change the network, check [hardhat config file](./hardhat.config.ts).
+
+</details>
+<br />
 
 #### Mint
 
 Run the `mint` task on the local network:
 
 ```sh
-pnpm task:mint --network local --mint 1000 --account 0
+pnpm task:mint --network local --mint 1000 --account alice
 ```
 
 ### Test
@@ -212,12 +230,10 @@ pnpm clean
 
 #### Deploy EncryptedERC20
 
-[TODO]: this command does not work on my side, please check it!
-
 Deploy a new instance of the EncryptedERC20 contract via a task:
 
 ```sh
-pnpm task:deployEncryptedERC20
+pnpm task:deployERC20
 ```
 
 ## Tips
@@ -236,7 +252,7 @@ on/off.
 
 ## Local development with Docker
 
-Not ready yet...
+Please check Evmos repository to be able to build FhEVM from sources.
 
 ## License
 
