@@ -90,7 +90,7 @@ Start a local fhevm docker container that inlcudes everything needed to deploy F
 pnpm fhevm:start
 ```
 
-To stop ^C or:
+To stop:
 
 ```sh
 pnpm fhevm:stop
