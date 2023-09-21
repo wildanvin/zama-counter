@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
-import { getSigners } from "../test/signers";
 
+import { getSigners } from "../test/signers";
 
 task("task:deployERC20").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const signers = await getSigners(ethers);

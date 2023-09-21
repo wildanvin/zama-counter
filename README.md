@@ -149,14 +149,15 @@ Deploy the ERC20 to local network:
 pnpm deploy:contracts
 ```
 
-Notes:
-<br />
+Notes: <br />
+
 <details>
 <summary>Error: cannot get the transaction for EncryptedERC20's previous deployment</summary>
 
 One can delete the local folder in deployments:
+
 ```bash
-rm -r deployments/local/    
+rm -r deployments/local/
 ```
 
 </details>
@@ -164,8 +165,7 @@ rm -r deployments/local/
 <details>
 <summary>Info: by default, the local network is used</summary>
 
-One can change the network, check
-[hardhat config file](./hardhat.config.ts).
+One can change the network, check [hardhat config file](./hardhat.config.ts).
 
 </details>
 <br />
@@ -252,7 +252,7 @@ on/off.
 
 ## Local development with Docker
 
-Please check Evmos repository to be able to build FhEVM from sources. 
+Please check Evmos repository to be able to build FhEVM from sources.
 
 ## License
 
