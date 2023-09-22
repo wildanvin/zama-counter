@@ -66,7 +66,7 @@ You can edit the CI script in [.github/workflows/ci.yml](./.github/workflows/ci.
 
 ### Pre Requisites
 
-Install [docker](https://docs.docker.com/engine/install/]
+Install [docker](https://docs.docker.com/engine/install/)
 
 Install [pnpm](https://pnpm.io/installation)
 
