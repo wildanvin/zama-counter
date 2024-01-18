@@ -202,14 +202,6 @@ Lint the TypeScript code:
 pnpm lint:ts
 ```
 
-### Coverage
-
-Generate the code coverage report:
-
-```sh
-pnpm coverage
-```
-
 ### Report Gas
 
 See the gas usage per unit test and average gas per method call:
