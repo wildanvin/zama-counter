@@ -122,8 +122,8 @@ pnpm task:accounts
 
 ### Get some native coins
 
-In order to interact with the blockchain, one need some coins. This command will give coins to the first address derived
-from the mnemonic in .env file.
+In order to interact with the blockchain, one need some coins. This command will give coins to the first 5 addresses
+derived from the mnemonic in .env file.
 
 ```sh
 pnpm fhevm:faucet
