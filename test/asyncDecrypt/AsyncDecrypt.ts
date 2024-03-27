@@ -17,10 +17,10 @@ describe("TestAsyncDecrypt", function () {
   });
 
   it("test async decrypt", async function () {
-    const tx2 = await this.contract.connect(this.signers.carol).myRequest(4, 6, { gasLimit: 500_000 });
+    const tx2 = await this.contract.connect(this.signers.carol).myRequest(8, 10, { gasLimit: 500_000 });
     await tx2.wait();
     await awaitAllDecryptionResults();
     const y = await this.contract.total();
-    expect(y).to.equal(9 + 4 + 6);
+    expect(y).to.equal(42 + 8 + 10);
   });
 });
