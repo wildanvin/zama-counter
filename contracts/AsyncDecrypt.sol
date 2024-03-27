@@ -9,7 +9,7 @@ contract MyContract is OracleCaller {
 
     function myRequest(uint256 input1, uint256 input2) public {
         euint8[] memory cts = new euint8[](1);
-        cts[0] = TFHE.asEuint8(42);
+        cts[0] = TFHE.asEuint8(9);
         uint256 requestID = Oracle.requestDecryption(cts, this.myCallback.selector, 0, block.timestamp + 100);
         addParamsUint(requestID, input1);
         addParamsUint(requestID, input2);

@@ -1,5 +1,5 @@
 import "@nomicfoundation/hardhat-toolbox";
-import { config as dotenvConfig } from "dotenv";
+import dotenv from "dotenv";
 import * as fs from "fs";
 import "hardhat-deploy";
 import "hardhat-preprocessor";
@@ -47,7 +47,7 @@ task("coverage-mock", "Run coverage after running pre-process task").setAction(a
 });
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
-dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
+dotenv.config({ path: resolve(__dirname, dotenvConfigPath) });
 
 const mnemonic: string | undefined = process.env.MNEMONIC;
 if (!mnemonic) {
