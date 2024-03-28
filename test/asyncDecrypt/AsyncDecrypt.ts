@@ -6,12 +6,12 @@ import { getSigners, initSigners } from "../signers";
 
 describe("TestAsyncDecrypt", function () {
   before(async function () {
+    await asyncDecrypt();
     await initSigners();
     this.signers = await getSigners();
   });
 
   beforeEach(async function () {
-    await asyncDecrypt();
     const contractFactory = await ethers.getContractFactory("MyContract");
     this.contract = await contractFactory.connect(this.signers.alice).deploy();
   });
