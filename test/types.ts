@@ -1,6 +1,5 @@
 import type { FhevmInstance } from "fhevmjs";
 
-import { EncryptedERC20 } from "../types";
 import type { Signers } from "./signers";
 
 declare module "mocha" {

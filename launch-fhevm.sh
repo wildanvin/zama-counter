@@ -11,8 +11,8 @@ ORACLE_CONTRACT_PREDEPLOY_ADDRESS=$(grep ORACLE_CONTRACT_PREDEPLOY_ADDRESS node_
 docker run -d -i -p 8545:8545 --rm --name fhevm \
   -e PRIVATE_KEY_ORACLE_RELAYER="$PRIVATE_KEY_ORACLE_RELAYER" \
   -e ORACLE_CONTRACT_PREDEPLOY_ADDRESS="$ORACLE_CONTRACT_PREDEPLOY_ADDRESS" \
-  ghcr.io/zama-ai/ethermint-dev-node:v0.3.0-5-async
-  
+  ghcr.io/zama-ai/ethermint-dev-node:v0.3.0-7-test
+
 sleep 10
 
 npx hardhat compile

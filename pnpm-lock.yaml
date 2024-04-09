@@ -69,13 +69,13 @@ devDependencies:
     specifier: ^6.8.0
     version: 6.11.1
   fhevm:
-    specifier: 0.4.0-5
-    version: 0.4.0-5(hardhat@2.22.2)
+    specifier: 0.4.0-6
+    version: 0.4.0-6(hardhat@2.22.2)
   fhevm-contracts:
     specifier: 0.1.0-1
     version: 0.1.0-1
   fhevmjs:
-    specifier: ^0.4.0-8
+    specifier: ^0.4.0-9
     version: 0.4.0-9
   fs-extra:
     specifier: ^10.1.0
@@ -2762,8 +2762,8 @@ packages:
       '@openzeppelin/contracts': 5.0.2
     dev: true
 
-  /fhevm@0.4.0-5(hardhat@2.22.2):
-    resolution: {integrity: sha512-P2qmcj1a+9XGXFhoIxqRSNlU9ZOmkSnNe7bHAdJbXSbLnz17I3Jl4y87KSb2eYvJ6WgesDlDpJTKtmHcaqN9uA==}
+  /fhevm@0.4.0-6(hardhat@2.22.2):
+    resolution: {integrity: sha512-vA1YAtf8CkWhnhq/B5q1ohgYqeNWIblMyp3thV5i9wo03HvaqegPg1J4D92VwuMWf3VZvPoz94jMMJZniar4DA==}
     dependencies:
       '@openzeppelin/contracts': 5.0.2
       hardhat-preprocessor: 0.1.5(hardhat@2.22.2)
