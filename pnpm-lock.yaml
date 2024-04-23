@@ -69,14 +69,14 @@ devDependencies:
     specifier: ^6.8.0
     version: 6.11.1
   fhevm:
-    specifier: 0.4.0-6
-    version: 0.4.0-6(hardhat@2.22.2)
+    specifier: ^0.4.0
+    version: 0.4.0(hardhat@2.22.2)
   fhevm-contracts:
-    specifier: 0.1.0-1
-    version: 0.1.0-1
+    specifier: ^0.1.0
+    version: 0.1.0
   fhevmjs:
-    specifier: ^0.4.0-9
-    version: 0.4.0-9
+    specifier: ^0.4.0
+    version: 0.4.0
   fs-extra:
     specifier: ^10.1.0
     version: 10.1.0
@@ -2756,14 +2756,14 @@ packages:
       reusify: 1.0.4
     dev: true
 
-  /fhevm-contracts@0.1.0-1:
-    resolution: {integrity: sha512-ESgwVf21I8veoK3nAOshN1/TXrgVT+pQ8AJEwsWoOfvvQGiU3o4jhCmKDWWXPKea1NFPPUUBS4P8uj0hNagZPQ==}
+  /fhevm-contracts@0.1.0:
+    resolution: {integrity: sha512-gnIW8eGAPftFgh63DA9Nxh+jhwmfnAiwUtpvabEDiRUxo4XOP+Tte7kVsY5BMvhrvT8Z5RQ4JVzt2LJCfLpRTQ==}
     dependencies:
       '@openzeppelin/contracts': 5.0.2
     dev: true
 
-  /fhevm@0.4.0-6(hardhat@2.22.2):
-    resolution: {integrity: sha512-vA1YAtf8CkWhnhq/B5q1ohgYqeNWIblMyp3thV5i9wo03HvaqegPg1J4D92VwuMWf3VZvPoz94jMMJZniar4DA==}
+  /fhevm@0.4.0(hardhat@2.22.2):
+    resolution: {integrity: sha512-UuOYMgAodOoGX69G6EXzb7QRes80KeUzDOhRNEqXh7l4npC/0JZXVNoqKwSRe0hGQJE6Qwx+FforPhs5rPzXtg==}
     dependencies:
       '@openzeppelin/contracts': 5.0.2
       hardhat-preprocessor: 0.1.5(hardhat@2.22.2)
@@ -2771,8 +2771,8 @@ packages:
       - hardhat
     dev: true
 
-  /fhevmjs@0.4.0-9:
-    resolution: {integrity: sha512-1xuKWXhEi3+rQRx3sCrKHu0tkS3X0mdG7ipv/VPPGmfgYSVrfKXb2JAC3eR14KhwY7f7uqr3VRHrRaZb9QJ+Mg==}
+  /fhevmjs@0.4.0:
+    resolution: {integrity: sha512-4FEU9B8SYKeikuOycRQzexcTsu2vK89tIzyepIGhQ/d1LzMu84TmfLg5H688CoRUPVbVkRcsaVN13OwzJBKX/w==}
     hasBin: true
     dependencies:
       bigint-buffer: 1.1.5
