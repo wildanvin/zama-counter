@@ -1,22 +1,23 @@
 #!/bin/bash
 
-PRIVATE_KEY_ORACLE_DEPLOYER=$(grep PRIVATE_KEY_ORACLE_DEPLOYER .env | cut -d '"' -f 2)
+# Assumes the following:
+# 1. A local and **fresh** fhEVM node is already running.
+# 2. All test addresses are funded (e.g. via the fund_test_addresses.sh script).
+npx hardhat clean
+mkdir fhevmTemp
+cp -r node_modules/fhevm fhevmTemp/
+npx hardhat compile:specific --contract fhevmTemp/fhevm/lib
+npx hardhat compile:specific --contract fhevmTemp/fhevm/gateway
+rm -rf fhevmTemp
 
-npx hardhat task:computePredeployAddress --private-key "$PRIVATE_KEY_ORACLE_DEPLOYER"
+PRIVATE_KEY_GATEWAY_DEPLOYER=$(grep PRIVATE_KEY_GATEWAY_DEPLOYER .env | cut -d '"' -f 2)
+npx hardhat task:computePredeployAddress --private-key "$PRIVATE_KEY_GATEWAY_DEPLOYER"
 
-PRIVATE_KEY_ORACLE_RELAYER=$(grep PRIVATE_KEY_ORACLE_RELAYER .env | cut -d '"' -f 2)
+npx hardhat task:computeACLAddress
+npx hardhat task:computeTFHEExecutorAddress
+npx hardhat task:computeKMSVerifierAddress
+npx hardhat task:deployACL
+npx hardhat task:deployTFHEExecutor
+npx hardhat task:deployKMSVerifier
 
-ORACLE_CONTRACT_PREDEPLOY_ADDRESS=$(grep ORACLE_CONTRACT_PREDEPLOY_ADDRESS node_modules/fhevm/oracle/.env.oracle | cut -d '=' -f2)
-
-docker run -d -i -p 8545:8545 --rm --name fhevm \
-  -e PRIVATE_KEY_ORACLE_RELAYER="$PRIVATE_KEY_ORACLE_RELAYER" \
-  -e ORACLE_CONTRACT_PREDEPLOY_ADDRESS="$ORACLE_CONTRACT_PREDEPLOY_ADDRESS" \
-  ghcr.io/zama-ai/ethermint-dev-node:v0.4.2
-
-sleep 10
-
-npx hardhat compile
-
-npx hardhat task:launchFhevm
-
-docker attach fhevm
+npx hardhat task:launchFhevm --skip-get-coin true
