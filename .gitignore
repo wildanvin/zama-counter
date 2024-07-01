@@ -19,3 +19,6 @@ deployments
 coverage.json
 package-lock.json
 yarn.lock
+
+res/
+running_node/

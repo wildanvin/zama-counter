@@ -4,16 +4,24 @@ import * as fs from "fs";
 import "hardhat-deploy";
 import "hardhat-preprocessor";
 import { TASK_PREPROCESS } from "hardhat-preprocessor";
-import type { HardhatUserConfig } from "hardhat/config";
+import type { HardhatUserConfig, extendProvider } from "hardhat/config";
 import { task } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
 import { resolve } from "path";
 import * as path from "path";
 
+import CustomProvider from "./CustomProvider";
 import "./tasks/accounts";
 import "./tasks/deployERC20";
 import "./tasks/getEthereumAddress";
-import "./tasks/taskOracleRelayer";
+import "./tasks/taskDeploy";
+import "./tasks/taskGatewayRelayer";
+import "./tasks/taskTFHE";
+
+extendProvider(async (provider, config, network) => {
+  const newProvider = new CustomProvider(provider);
+  return newProvider;
+});
 
 function getAllSolidityFiles(dir: string, fileList: string[] = []): string[] {
   fs.readdirSync(dir).forEach((file) => {
@@ -26,6 +34,15 @@ function getAllSolidityFiles(dir: string, fileList: string[] = []): string[] {
   });
   return fileList;
 }
+
+task("compile:specific", "Compiles only the specified contract")
+  .addParam("contract", "The contract's path")
+  .setAction(async ({ contract }, hre) => {
+    // Adjust the configuration to include only the specified contract
+    hre.config.paths.sources = contract;
+
+    await hre.run("compile");
+  });
 
 task("coverage-mock", "Run coverage after running pre-process task").setAction(async function (args, env) {
   const contractsPath = path.join(env.config.paths.root, "contracts/");
@@ -185,7 +202,7 @@ const config: HardhatUserConfig = {
     tests: "./test",
   },
   solidity: {
-    version: "0.8.22",
+    version: "0.8.25",
     settings: {
       metadata: {
         // Not including the metadata hash
@@ -198,7 +215,7 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 800,
       },
-      evmVersion: "shanghai",
+      evmVersion: "cancun",
     },
   },
   typechain: {

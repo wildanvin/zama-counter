@@ -1,6 +1,8 @@
+import { toBufferLE } from "bigint-buffer";
 import { ContractMethodArgs, Typed } from "ethers";
 import { ethers } from "hardhat";
 
+import type { Counter } from "../types";
 import { TypedContractMethod } from "../types/common";
 import { getSigners } from "./signers";
 
@@ -71,19 +73,32 @@ export const createTransaction = async <A extends [...{ [I in keyof A]-?: A[I] |
 };
 
 export const produceDummyTransactions = async (blockCount: number) => {
-  const nullAddress = "0x0000000000000000000000000000000000000000";
-  const signers = await getSigners();
-  while (blockCount > 0) {
-    blockCount--;
-    // Sending 0 ETH to the null address
-    const tx = await signers.dave.sendTransaction({
-      to: nullAddress,
-      value: ethers.parseEther("0"),
-    });
+  const contract = await deployCounterContract();
+  let counter = blockCount;
+  while (counter > 0) {
+    counter--;
+    const tx = await contract.increment();
+    const _ = await tx.wait();
   }
 };
 
+async function deployCounterContract(): Promise<Counter> {
+  const signers = await getSigners();
+
+  const contractFactory = await ethers.getContractFactory("Counter");
+  const contract = await contractFactory.connect(signers.dave).deploy();
+  await contract.waitForDeployment();
+
+  return contract;
+}
+
 export const mineNBlocks = async (n: number) => {
-  // this only works in mocked mode
-  await ethers.provider.send("hardhat_mine", ["0x" + n.toString(16)]);
+  for (let index = 0; index < n; index++) {
+    await ethers.provider.send("evm_mine");
+  }
+};
+
+export const bigIntToBytes = (value: bigint) => {
+  const byteArrayLength = Math.ceil(value.toString(2).length / 8);
+  return new Uint8Array(toBufferLE(value, byteArrayLength));
 };
