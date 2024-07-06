@@ -17,12 +17,12 @@ SUDO := $(shell which sudo)
 
 # This version must the same as in docker-compose-full.yml
 # TODO add check
-KMS_DEV_VERSION ?= v0.7.0
+KMS_DEV_VERSION ?= v0.7.1
 
 FHEVM_SOLIDITY_REPO ?= fhevm
 FHEVM_SOLIDITY_PATH ?= $(WORKDIR)/$(FHEVM_SOLIDITY_REPO)
 FHEVM_SOLIDITY_PATH_EXISTS := $(shell test -d $(FHEVM_SOLIDITY_PATH)/.git && echo "true" || echo "false")
-FHEVM_SOLIDITY_VERSION ?= 1e91f1f2b3055a6abda0f7a5fa372ec4ffae9116
+FHEVM_SOLIDITY_VERSION ?= V0.5.1
 
 export GO111MODULE = on
 
@@ -78,7 +78,7 @@ init-ethermint-node:
 	@$(MAKE) init-ethermint-node-from-registry
 
 init-ethermint-node-from-registry:
-	@docker compose -f docker-compose/docker-compose-full.yml run validator bash /config/setup.sh
+	@docker compose -f docker-compose/docker-compose-full.yml run fhevm-validator bash /config/setup.sh
 	$(MAKE) change-running-node-owner
 	$(MAKE) generate-fhe-keys-registry
 
@@ -151,4 +151,3 @@ print-info:
 	@echo 'KMS_DEV_VERSION: $(KMS_DEV_VERSION) for KEY_GEN---extracted from Makefile'
 	@echo 'FHEVM_SOLIDITY_VERSION: $(FHEVM_SOLIDITY_VERSION) ---extracted from Makefile'
 	@bash scripts/get_repository_info.sh fhevm $(FHEVM_SOLIDITY_PATH)
-
