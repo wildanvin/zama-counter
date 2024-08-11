@@ -9,7 +9,7 @@ task("task:deployGateway")
   .setAction(async function (taskArguments: TaskArguments, { ethers }) {
     const deployer = new ethers.Wallet(taskArguments.privateKey).connect(ethers.provider);
     const envConfig2 = dotenv.parse(fs.readFileSync("node_modules/fhevm/lib/.env.kmsverifier"));
-    const gatewayFactory = await ethers.getContractFactory("GatewayContract");
+    const gatewayFactory = await ethers.getContractFactory("fhevm/gateway/GatewayContract.sol:GatewayContract");
     const Gateway = await gatewayFactory
       .connect(deployer)
       .deploy(taskArguments.ownerAddress, envConfig2.KMS_VERIFIER_CONTRACT_ADDRESS);
@@ -26,7 +26,7 @@ task("task:deployGateway")
 
 task("task:deployACL").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const deployer = (await ethers.getSigners())[9];
-  const factory = await ethers.getContractFactory("ACL");
+  const factory = await ethers.getContractFactory("fhevm/lib/ACL.sol:ACL");
   const envConfigExec = dotenv.parse(fs.readFileSync("node_modules/fhevm/lib/.env.exec"));
   const acl = await factory.connect(deployer).deploy(envConfigExec.TFHE_EXECUTOR_CONTRACT_ADDRESS);
   await acl.waitForDeployment();
@@ -53,7 +53,7 @@ task("task:deployTFHEExecutor").setAction(async function (taskArguments: TaskArg
 
 task("task:deployKMSVerifier").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const deployer = (await ethers.getSigners())[9];
-  const factory = await ethers.getContractFactory("KMSVerifier");
+  const factory = await ethers.getContractFactory("fhevm/lib/KMSVerifier.sol:KMSVerifier");
   const exec = await factory.connect(deployer).deploy();
   await exec.waitForDeployment();
   const address = await exec.getAddress();
