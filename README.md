@@ -71,10 +71,15 @@ Install [docker](https://docs.docker.com/engine/install/)
 Install [pnpm](https://pnpm.io/installation)
 
 Before being able to run any command, you need to create a `.env` file and set a BIP-39 compatible mnemonic as an
-environment variable. You can follow the example in `.env.example`. If you don't already have a mnemonic, you can use
-this [website](https://iancoleman.io/bip39/) to generate one.
+environment variable. You can follow the example in `.env.example` and start with the following command:
 
-Then, proceed with installing dependencies - please make sure to use Node v20 or more recent or this will fail:
+```sh
+cp .env.example .env
+```
+
+If you don't already have a mnemonic, you can use this [website](https://iancoleman.io/bip39/) to generate one.
+
+Then, proceed with installing dependencies - please **_make sure to use Node v20_** or more recent or this will fail:
 
 ```sh
 pnpm install
@@ -195,14 +200,27 @@ pnpm clean
 
 ### Mocked mode
 
-**Warning** Since upgrading fhevm to v0.5 the previous version of mocked mode is no longer functional. We are now
-working on a new version of the mocked mode which is more faithful to the real fhevm, with (almost) full parity to fhevm
-functionalities. This is now possible since fhevm v0.5 introduced an explicit ACL contract. New mocked feature will be
-delivered very soon.
-
 The mocked mode allows faster testing and the ability to analyze coverage of the tests. In this mocked version,
 encrypted types are not really encrypted, and the tests are run on the original version of the EVM, on a local hardhat
-network instance.
+network instance. To run the tests in mocked mode, you can use directly the following command:
+
+```bash
+pnpm test:mock
+```
+
+To analyze the coverage of the tests (in mocked mode necessarily, as this cannot be done on the real fhEVM node), you
+can use this command :
+
+```bash
+pnpm coverage:mock
+```
+
+Then open the file `coverage/index.html`. You can see there which line or branch for each contract which has been
+covered or missed by your test suite. This allows increased security by pointing out missing branches not covered yet by
+the current tests.
+
+> [!Note]
+> Due to intrinsic limitations of the original EVM, the mocked version differ in few corner cases from the real fhEVM, the main difference is the difference in gas prices for the FHE operations. This means that before deploying to production, developers still need to run the tests with the original fhEVM node, as a final check in non-mocked mode, with `pnpm test`.
 
 ### Syntax Highlighting
 

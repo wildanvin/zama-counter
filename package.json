@@ -31,12 +31,13 @@
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "ethers": "^6.8.0",
-    "fhevm": "^0.5.3",
+    "fhevm": "^0.5.5",
     "fhevmjs": "^0.5.2",
     "fs-extra": "^10.1.0",
-    "hardhat": "^2.19.4",
+    "hardhat": "^2.22.8",
     "hardhat-deploy": "^0.11.29",
     "hardhat-gas-reporter": "^1.0.9",
+    "hardhat-ignore-warnings": "^0.2.11",
     "hardhat-preprocessor": "^0.1.5",
     "lodash": "^4.17.21",
     "mocha": "^10.1.0",
@@ -45,7 +46,7 @@
     "rimraf": "^4.1.2",
     "solhint": "^3.4.0",
     "solhint-plugin-prettier": "^0.0.5",
-    "solidity-coverage": "0.8.6",
+    "solidity-coverage": "0.8.12",
     "ts-generator": "^0.1.1",
     "ts-node": "^10.9.1",
     "typechain": "^8.2.0",
@@ -81,8 +82,8 @@
     "prettier:write": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\"",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "test": "hardhat test",
-    "test:mock": "HARDHAT_NETWORK=hardhat hardhat test --network hardhat",
-    "coverage:mock": "HARDHAT_NETWORK=hardhat hardhat coverage-mock --network hardhat",
+    "test:mock": "hardhat test --network hardhat",
+    "coverage:mock": "hardhat coverage",
     "task:getEthereumAddress": "hardhat task:getEthereumAddress",
     "task:deployERC20": "hardhat task:deployERC20",
     "task:accounts": "hardhat task:accounts",
@@ -97,6 +98,7 @@
     "fhevm:faucet:eve": "docker exec -i zama-dev-fhevm-validator-1 faucet $(npx hardhat task:getEthereumAddressEve)"
   },
   "dependencies": {
-    "hardhat-ignore-warnings": "^0.2.11"
+    "extra-bigint": "^1.1.18",
+    "sqlite3": "^5.1.7"
   }
 }
