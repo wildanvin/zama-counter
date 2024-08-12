@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import * as fs from "fs-extra";
 import "hardhat-deploy";
 import "hardhat-ignore-warnings";
-import type { HardhatUserConfig, extendProvider } from "hardhat/config";
+import type { HardhatUserConfig } from "hardhat/config";
+import { extendProvider } from "hardhat/config";
 import { task } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
 import { resolve } from "path";
@@ -17,7 +18,7 @@ import "./tasks/taskDeploy";
 import "./tasks/taskGatewayRelayer";
 import "./tasks/taskTFHE";
 
-extendProvider(async (provider, config, network) => {
+extendProvider(async (provider) => {
   const newProvider = new CustomProvider(provider);
   return newProvider;
 });

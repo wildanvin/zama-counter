@@ -99,7 +99,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeBool() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000000);
-        Gateway.requestDecryption(cts, this.callbackBool.selector, 0, block.timestamp + 100, false); // this should revert because previous ebool is not honestly obtained
+        // this should revert because previous ebool is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackBool.selector, 0, block.timestamp + 100, false);
     }
 
     function callbackBool(uint256, bool decryptedInput) public onlyGateway returns (bool) {
@@ -129,7 +130,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeUint4() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000100);
-        Gateway.requestDecryption(cts, this.callbackUint4.selector, 0, block.timestamp + 100, false); // this should revert because previous handle is not honestly obtained
+        // this should revert because previous handle is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackUint4.selector, 0, block.timestamp + 100, false);
     }
 
     function callbackUint4(uint256, uint8 decryptedInput) public onlyGateway returns (uint8) {
@@ -146,7 +148,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeUint8() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000200);
-        Gateway.requestDecryption(cts, this.callbackUint8.selector, 0, block.timestamp + 100, false); // this should revert because previous handle is not honestly obtained
+        // this should revert because previous handle is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackUint8.selector, 0, block.timestamp + 100, false);
     }
 
     function callbackUint8(uint256, uint8 decryptedInput) public onlyGateway returns (uint8) {
@@ -163,7 +166,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeUint16() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000300);
-        Gateway.requestDecryption(cts, this.callbackUint16.selector, 0, block.timestamp + 100, false); // this should revert because previous handle is not honestly obtained
+        // this should revert because previous handle is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackUint16.selector, 0, block.timestamp + 100, false);
     }
 
     function callbackUint16(uint256, uint16 decryptedInput) public onlyGateway returns (uint16) {
@@ -188,7 +192,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeUint32() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000400);
-        Gateway.requestDecryption(cts, this.callbackUint32.selector, 0, block.timestamp + 100, false); // this should revert because previous handle is not honestly obtained
+        // this should revert because previous handle is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackUint32.selector, 0, block.timestamp + 100, false);
     }
 
     function callbackUint32(uint256 requestID, uint32 decryptedInput) public onlyGateway returns (uint32) {
@@ -209,7 +214,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeUint64() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000500);
-        Gateway.requestDecryption(cts, this.callbackUint64.selector, 0, block.timestamp + 100, false); // this should revert because previous handle is not honestly obtained
+        // this should revert because previous handle is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackUint64.selector, 0, block.timestamp + 100, false);
     }
 
     function requestUint64NonTrivial(einput inputHandle, bytes calldata inputProof) public {
@@ -262,7 +268,8 @@ contract TestAsyncDecrypt is GatewayCaller {
     function requestFakeAddress() public {
         uint256[] memory cts = new uint256[](1);
         cts[0] = uint256(0x4200000000000000000000000000000000000000000000000000000000000700);
-        Gateway.requestDecryption(cts, this.callbackAddress.selector, 0, block.timestamp + 100, false); // this should revert because previous handle is not honestly obtained
+        // this should revert because previous handle is not honestly obtained
+        Gateway.requestDecryption(cts, this.callbackAddress.selector, 0, block.timestamp + 100, false);
     }
 
     function callbackAddress(uint256, address decryptedInput) public onlyGateway returns (address) {
