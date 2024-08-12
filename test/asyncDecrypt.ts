@@ -54,14 +54,14 @@ export const asyncDecrypt = async (): Promise<void> => {
     "fhevm/gateway/GatewayContract.sol:GatewayContract",
     parsedEnv.GATEWAY_CONTRACT_PREDEPLOY_ADDRESS,
   );
-  gateway.on(
+  await gateway.on(
     "EventDecryption",
     async (requestID, cts, contractCaller, callbackSelector, msgValue, maxTimestamp, eventData) => {
       const blockNumber = eventData.log.blockNumber;
       console.log(`${await currentTime()} - Requested decrypt on block ${blockNumber} (requestID ${requestID})`);
     },
   );
-  gateway.on("ResultCallback", async (requestID, success, result, eventData) => {
+  await gateway.on("ResultCallback", async (requestID, success, result, eventData) => {
     const blockNumber = eventData.log.blockNumber;
     console.log(`${await currentTime()} - Fulfilled decrypt on block ${blockNumber} (requestID ${requestID})`);
   });

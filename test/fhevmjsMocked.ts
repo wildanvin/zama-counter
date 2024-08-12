@@ -4,12 +4,11 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 import * as fs from "fs";
+import hre from "hardhat";
 import { Keccak } from "sha3";
 import { isAddress } from "web3-validator";
 
 import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
-
-const hre = require("hardhat");
 
 const parsedEnvACL = dotenv.parse(fs.readFileSync("node_modules/fhevm/lib/.env.acl"));
 const aclAdd = parsedEnvACL.ACL_CONTRACT_ADDRESS.replace(/^0x/, "").replace(/^0+/, "").toLowerCase();

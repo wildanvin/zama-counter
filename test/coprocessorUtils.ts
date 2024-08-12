@@ -15,9 +15,7 @@ let lastBlockSnapshot = 0;
 let lastCounterRand = 0;
 let counterRand = 0;
 
-const contractABI = JSON.parse(
-  fs.readFileSync("abi/TFHEExecutor.json").toString(),
-).abi;
+const contractABI = JSON.parse(fs.readFileSync("abi/TFHEExecutor.json").toString()).abi;
 
 const iface = new ethers.Interface(contractABI);
 
@@ -32,7 +30,7 @@ const selectors = functions.reduce((acc, func) => {
 //const db = new Database('./sql.db'); // on-disk db for debugging
 const db = new Database(":memory:");
 
-function insertSQL(handle: string, clearText: BigInt, replace: boolean = false) {
+function insertSQL(handle: string, clearText: bigint, replace: boolean = false) {
   if (replace) {
     // this is useful if using snapshots while sampling different random numbers on each revert
     db.run("INSERT OR REPLACE INTO ciphertexts (handle, clearText) VALUES (?, ?)", [handle, clearText.toString()]);
@@ -43,7 +41,7 @@ function insertSQL(handle: string, clearText: BigInt, replace: boolean = false) 
 
 // Decrypt any handle, bypassing ACL
 // WARNING : only for testing or internal use
-export const getClearText = async (handle: BigInt): Promise<string> => {
+export const getClearText = async (handle: bigint): Promise<string> => {
   const handleStr = "0x" + handle.toString(16).padStart(64, "0");
 
   return new Promise((resolve, reject) => {
@@ -68,7 +66,7 @@ export const getClearText = async (handle: BigInt): Promise<string> => {
     executeQuery();
   });
 };
-/*export const getClearText = async (handle: BigInt): Promise<string> => {
+/*export const getClearText = async (handle: bigint): Promise<string> => {
   const handleStr = '0x' + handle.toString(16).padStart(64, '0');
   return new Promise((resolve, reject) => {
     db.get('SELECT clearText FROM ciphertexts WHERE handle = ?', [handleStr], (err, row) => {
@@ -197,7 +195,7 @@ function getRandomBigInt(numBits: number): bigint {
   return randomBigInt;
 }
 
-async function insertHandle(obj: EvmState, blockNo: number) {
+async function insertHandle(obj: EvmState) {
   if (isCoprocAdd(obj!.stack.at(-2))) {
     const argsOffset = Number(`0x${obj!.stack.at(-4)}`);
     const argsSize = Number(`0x${obj!.stack.at(-5)}`);
@@ -671,7 +669,7 @@ async function insertHandle(obj: EvmState, blockNo: number) {
         insertSQL(handle, clearText);
         break;
 
-      case "verifyCiphertext(bytes32,address,bytes,bytes1)":
+      case "verifyCiphertext(bytes32,address,bytes,bytes1)": {
         handle = decodedData[0];
         const type = parseInt(handle.slice(-4, -2), 16);
         if (type !== 11) {
@@ -687,8 +685,8 @@ async function insertHandle(obj: EvmState, blockNo: number) {
           insertSQL(handle, clearText);
         }
         break;
-
-      case "fheIfThenElse(uint256,uint256,uint256)":
+      }
+      case "fheIfThenElse(uint256,uint256,uint256)": {
         resultType = parseInt(decodedData[1].toString(16).slice(-4, -2), 16);
         handle = ethers.keccak256(
           ethers.solidityPacked(
@@ -707,8 +705,8 @@ async function insertHandle(obj: EvmState, blockNo: number) {
         }
         insertSQL(handle, clearText);
         break;
-
-      case "fheRand(bytes1)":
+      }
+      case "fheRand(bytes1)": {
         resultType = parseInt(decodedData[0], 16);
         handle = ethers.keccak256(
           ethers.solidityPacked(["uint8", "bytes1", "uint256"], [Operators.fheRand, decodedData[0], counterRand]),
@@ -718,8 +716,8 @@ async function insertHandle(obj: EvmState, blockNo: number) {
         insertSQL(handle, clearText, true);
         counterRand++;
         break;
-
-      case "fheRandBounded(uint256,bytes1)":
+      }
+      case "fheRandBounded(uint256,bytes1)": {
         resultType = parseInt(decodedData[1], 16);
         handle = ethers.keccak256(
           ethers.solidityPacked(
@@ -732,11 +730,12 @@ async function insertHandle(obj: EvmState, blockNo: number) {
         insertSQL(handle, clearText, true);
         counterRand++;
         break;
+      }
     }
   }
 }
 
-function bitwiseNotUintBits(value: BigInt, numBits: number) {
+function bitwiseNotUintBits(value: bigint, numBits: number) {
   if (typeof value !== "bigint") {
     throw new TypeError("The input value must be a BigInt.");
   }
@@ -776,7 +775,7 @@ export const awaitCoprocessor = async (): Promise<void> => {
 async function getAllPastTransactionHashes() {
   const provider = ethers.provider;
   const latestBlockNumber = await provider.getBlockNumber();
-  let txHashes: [string, number][] = [];
+  const txHashes: [string, number][] = [];
 
   if (hre.__SOLIDITY_COVERAGE_RUNNING !== true) {
     // evm_snapshot is not supported in coverage mode
@@ -802,74 +801,74 @@ async function getAllPastTransactionHashes() {
   return txHashes;
 }
 
-async function buildCallTree(receipt) {
-  const txHash = receipt.hash;
-  const trace = await ethers.provider.send("debug_traceTransaction", [txHash, {}]);
-  const structLogs = trace.structLogs;
+// async function buildCallTree(receipt: TransactionReceipt) {
+//   const txHash = receipt.hash;
+//   const trace = await ethers.provider.send("debug_traceTransaction", [txHash, {}]);
+//   const structLogs = trace.structLogs;
 
-  const callStack = [];
-  const callTree = {
-    id: 0,
-    type: !!receipt.to ? "TOPCALL" : "TOPCREATE",
-    revert: receipt.status === 1 ? false : true,
-    to: !!receipt.to ? receipt.to : null,
-    calls: [],
-  };
-  let currentNode = callTree;
-  const lenStructLogs = structLogs.length;
-  let index = 1;
-  for (const [i, log] of structLogs.entries()) {
-    if (i < lenStructLogs - 1) {
-      if (structLogs[i].depth - structLogs[i + 1].depth === 1) {
-        if (!["RETURN", "SELFDESTRUCT", "STOP", "REVERT", "INVALID"].includes(structLogs[i].op)) {
-          currentNode.outofgasOrOther = true;
-          currentNode = callStack.pop();
-        }
-      }
-    }
+//   const callStack = [];
+//   const callTree = {
+//     id: 0,
+//     type: !!receipt.to ? "TOPCALL" : "TOPCREATE",
+//     revert: receipt.status === 1 ? false : true,
+//     to: !!receipt.to ? receipt.to : null,
+//     calls: [],
+//   };
+//   let currentNode = callTree;
+//   const lenStructLogs = structLogs.length;
+//   let index = 1;
+//   for (const [i, log] of structLogs.entries()) {
+//     if (i < lenStructLogs - 1) {
+//       if (structLogs[i].depth - structLogs[i + 1].depth === 1) {
+//         if (!["RETURN", "SELFDESTRUCT", "STOP", "REVERT", "INVALID"].includes(structLogs[i].op)) {
+//           currentNode.outofgasOrOther = true;
+//           currentNode = callStack.pop();
+//         }
+//       }
+//     }
 
-    switch (log.op) {
-      case "CALL":
-      case "DELEGATECALL":
-      case "CALLCODE":
-      case "STATICCALL":
-      case "CREATE":
-      case "CREATE2":
-        if (i < lenStructLogs - 1) {
-          if (structLogs[i + 1].depth - structLogs[i].depth === 1) {
-            const newNode = {
-              id: index,
-              type: log.op,
-              to: log.stack[log.stack.length - 2],
-              calls: [],
-              revert: true,
-              outofgasOrOther: false,
-            };
-            currentNode.calls.push(newNode);
-            callStack.push(currentNode);
-            currentNode = newNode;
-            index += 1;
-          }
-        }
-        break;
-      case "RETURN": // some edge case probably not handled well : if memory expansion cost on RETURN exceeds the remaining gas in current subcall, but it's OK for a mocked mode
-      case "SELFDESTRUCT": // some edge case probably not handled well : if there is not enough gas remaining on SELFDESTRUCT, but it's OK for a mocked mode
-      case "STOP":
-        currentNode.revert = false;
-        currentNode = callStack.pop();
-        break;
-      case "REVERT":
-      case "INVALID":
-        currentNode = callStack.pop();
-        break;
-    }
+//     switch (log.op) {
+//       case "CALL":
+//       case "DELEGATECALL":
+//       case "CALLCODE":
+//       case "STATICCALL":
+//       case "CREATE":
+//       case "CREATE2":
+//         if (i < lenStructLogs - 1) {
+//           if (structLogs[i + 1].depth - structLogs[i].depth === 1) {
+//             const newNode = {
+//               id: index,
+//               type: log.op,
+//               to: log.stack[log.stack.length - 2],
+//               calls: [],
+//               revert: true,
+//               outofgasOrOther: false,
+//             };
+//             currentNode.calls.push(newNode);
+//             callStack.push(currentNode);
+//             currentNode = newNode;
+//             index += 1;
+//           }
+//         }
+//         break;
+//       case "RETURN": // some edge case probably not handled well : if memory expansion cost on RETURN exceeds the remaining gas in current subcall, but it's OK for a mocked mode
+//       case "SELFDESTRUCT": // some edge case probably not handled well : if there is not enough gas remaining on SELFDESTRUCT, but it's OK for a mocked mode
+//       case "STOP":
+//         currentNode.revert = false;
+//         currentNode = callStack.pop();
+//         break;
+//       case "REVERT":
+//       case "INVALID":
+//         currentNode = callStack.pop();
+//         break;
+//     }
 
-    switch (log.op) {
-      case "CREATE":
-      case "CREATE2":
-        currentNode.to = null;
-        break;
-    }
-  }
-  return callTree;
-}
+//     switch (log.op) {
+//       case "CREATE":
+//       case "CREATE2":
+//         currentNode.to = null;
+//         break;
+//     }
+//   }
+//   return callTree;
+// }
