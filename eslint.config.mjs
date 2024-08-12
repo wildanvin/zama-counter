@@ -3,11 +3,15 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default [
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
   {
     languageOptions: {
       globals: globals.node,
     },
+    linterOptions: {
+      reportUnusedDisableDirectives: "off",
+    },
+    ignores: ["abi/", "artifacts/", "cache/", "res/", "types/*"],
   },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
 ];

@@ -115,7 +115,7 @@ describe("TestAsyncDecrypt", function () {
     const tx2 = await contract2.connect(this.signers.carol).requestMixed(5, 15, { gasLimit: 5_000_000 });
     await tx2.wait();
     await awaitAllDecryptionResults();
-    let yB = await contract2.yBool();
+    const yB = await contract2.yBool();
     expect(yB).to.equal(true);
     let y = await contract2.yUint4();
     expect(y).to.equal(4);
@@ -123,7 +123,7 @@ describe("TestAsyncDecrypt", function () {
     expect(y).to.equal(42);
     y = await contract2.yUint16();
     expect(y).to.equal(16);
-    let yAdd = await contract2.yAddress();
+    const yAdd = await contract2.yAddress();
     expect(yAdd).to.equal("0x8ba1f109551bD432803012645Ac136ddd64DBA72");
     y = await contract2.yUint32();
     expect(y).to.equal(52); // 5+15+32
