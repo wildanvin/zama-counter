@@ -656,40 +656,44 @@ async function insertHandle(obj2: EvmState, validIdxes: [number]) {
         break;
 
       case "verifyCiphertext(bytes32,address,bytes,bytes1)":
-        handle = decodedData[0];
-        const type = parseInt(handle.slice(-4, -2), 16);
-        if (type !== 11) {
-          //not an ebytes256
-          const typeSize = TypesBytesSize[type];
-          const idx = parseInt(handle.slice(-6, -4), 16);
-          const inputProof = decodedData[2].replace(/^0x/, "");
-          clearText = BigInt("0x" + inputProof.slice(2 + 2 * 53 * idx, 2 + 2 * typeSize + 2 * 53 * idx));
-          insertSQL(handle, clearText);
-        } else {
-          const inputProof = decodedData[2].replace(/^0x/, "");
-          clearText = BigInt("0x" + inputProof.slice(2, 2 + 2 * 256));
-          insertSQL(handle, clearText);
+        {
+          handle = decodedData[0];
+          const type = parseInt(handle.slice(-4, -2), 16);
+          if (type !== 11) {
+            //not an ebytes256
+            const typeSize = TypesBytesSize[type];
+            const idx = parseInt(handle.slice(-6, -4), 16);
+            const inputProof = decodedData[2].replace(/^0x/, "");
+            clearText = BigInt("0x" + inputProof.slice(2 + 2 * 53 * idx, 2 + 2 * typeSize + 2 * 53 * idx));
+            insertSQL(handle, clearText);
+          } else {
+            const inputProof = decodedData[2].replace(/^0x/, "");
+            clearText = BigInt("0x" + inputProof.slice(2, 2 + 2 * 256));
+            insertSQL(handle, clearText);
+          }
         }
         break;
 
       case "fheIfThenElse(uint256,uint256,uint256)":
-        resultType = parseInt(decodedData[1].toString(16).slice(-4, -2), 16);
-        handle = ethers.keccak256(
-          ethers.solidityPacked(
-            ["uint8", "uint256", "uint256", "uint256"],
-            [Operators.fheIfThenElse, decodedData[0], decodedData[1], decodedData[2]],
-          ),
-        );
-        handle = appendType(handle, resultType);
-        const clearControl = BigInt(await getClearText(decodedData[0]));
-        const clearIfTrue = BigInt(await getClearText(decodedData[1]));
-        const clearIfFalse = BigInt(await getClearText(decodedData[2]));
-        if (clearControl === 1n) {
-          clearText = clearIfTrue;
-        } else {
-          clearText = clearIfFalse;
+        {
+          resultType = parseInt(decodedData[1].toString(16).slice(-4, -2), 16);
+          handle = ethers.keccak256(
+            ethers.solidityPacked(
+              ["uint8", "uint256", "uint256", "uint256"],
+              [Operators.fheIfThenElse, decodedData[0], decodedData[1], decodedData[2]],
+            ),
+          );
+          handle = appendType(handle, resultType);
+          const clearControl = BigInt(await getClearText(decodedData[0]));
+          const clearIfTrue = BigInt(await getClearText(decodedData[1]));
+          const clearIfFalse = BigInt(await getClearText(decodedData[2]));
+          if (clearControl === 1n) {
+            clearText = clearIfTrue;
+          } else {
+            clearText = clearIfFalse;
+          }
+          insertSQL(handle, clearText);
         }
-        insertSQL(handle, clearText);
         break;
 
       case "fheRand(bytes1)":
@@ -768,7 +772,7 @@ export const awaitCoprocessor = async (): Promise<void> => {
 async function getAllPastTransactionHashes() {
   const provider = ethers.provider;
   const latestBlockNumber = await provider.getBlockNumber();
-  let txHashes = [];
+  const txHashes = [];
 
   if (hre.__SOLIDITY_COVERAGE_RUNNING !== true) {
     // evm_snapshot is not supported in coverage mode
@@ -801,9 +805,9 @@ async function buildCallTree(trace, receipt) {
   const callStack = [];
   const callTree = {
     id: 0,
-    type: !!receipt.to ? "TOPCALL" : "TOPCREATE",
+    type: receipt.to ? "TOPCALL" : "TOPCREATE",
     revert: receipt.status === 1 ? false : true,
-    to: !!receipt.to ? receipt.to : null,
+    to: receipt.to ? receipt.to : null,
     calls: [],
     indexTrace: 0,
   };
@@ -865,18 +869,6 @@ async function buildCallTree(trace, receipt) {
     }
   }
   return callTree;
-}
-
-function logCallContextsTree(callContext, indent = 0) {
-  const indentation = " ".repeat(indent);
-  console.log(`${indentation}id: ${callContext.id}, type: ${callContext.type}, revert: ${callContext.revert}`);
-
-  if (callContext.calls.length > 0) {
-    console.log(`${indentation}  Calls:`);
-    for (const call of callContext.calls) {
-      logCallContextsTree(call, indent + 4);
-    }
-  }
 }
 
 function getValidSubcallsIds(tree) {
