@@ -66,20 +66,6 @@ export const getClearText = async (handle: bigint): Promise<string> => {
     executeQuery();
   });
 };
-/*export const getClearText = async (handle: bigint): Promise<string> => {
-  const handleStr = '0x' + handle.toString(16).padStart(64, '0');
-  return new Promise((resolve, reject) => {
-    db.get('SELECT clearText FROM ciphertexts WHERE handle = ?', [handleStr], (err, row) => {
-      if (err) {
-        reject(new Error(`Error querying database: ${err.message}`));
-      } else if (row) {
-        resolve(row.clearText);
-      } else {
-        reject(new Error('No record found'));
-      }
-    });
-  });
-};*/
 
 db.serialize(() => db.run("CREATE TABLE IF NOT EXISTS ciphertexts (handle BINARY PRIMARY KEY,clearText TEXT)"));
 
@@ -195,12 +181,12 @@ function getRandomBigInt(numBits: number): bigint {
   return randomBigInt;
 }
 
-async function insertHandle(obj: EvmState) {
+async function insertHandle(obj2: EvmState, validIdxes: [number]) {
+  const obj = obj2.value;
   if (isCoprocAdd(obj!.stack.at(-2))) {
     const argsOffset = Number(`0x${obj!.stack.at(-4)}`);
     const argsSize = Number(`0x${obj!.stack.at(-5)}`);
     const calldata = extractCalldata(obj.memory, argsOffset, argsSize);
-    //console.log('calldata : ', calldata);
     const currentSelector = "0x" + calldata.slice(0, 8);
     const decodedData = iface.decodeFunctionData(currentSelector, "0x" + calldata);
 
@@ -669,7 +655,7 @@ async function insertHandle(obj: EvmState) {
         insertSQL(handle, clearText);
         break;
 
-      case "verifyCiphertext(bytes32,address,bytes,bytes1)": {
+      case "verifyCiphertext(bytes32,address,bytes,bytes1)":
         handle = decodedData[0];
         const type = parseInt(handle.slice(-4, -2), 16);
         if (type !== 11) {
@@ -685,8 +671,8 @@ async function insertHandle(obj: EvmState) {
           insertSQL(handle, clearText);
         }
         break;
-      }
-      case "fheIfThenElse(uint256,uint256,uint256)": {
+
+      case "fheIfThenElse(uint256,uint256,uint256)":
         resultType = parseInt(decodedData[1].toString(16).slice(-4, -2), 16);
         handle = ethers.keccak256(
           ethers.solidityPacked(
@@ -705,32 +691,35 @@ async function insertHandle(obj: EvmState) {
         }
         insertSQL(handle, clearText);
         break;
-      }
-      case "fheRand(bytes1)": {
-        resultType = parseInt(decodedData[0], 16);
-        handle = ethers.keccak256(
-          ethers.solidityPacked(["uint8", "bytes1", "uint256"], [Operators.fheRand, decodedData[0], counterRand]),
-        );
-        handle = appendType(handle, resultType);
-        clearText = getRandomBigInt(Number(NumBits[resultType]));
-        insertSQL(handle, clearText, true);
-        counterRand++;
+
+      case "fheRand(bytes1)":
+        if (validIdxes.includes(obj2.index)) {
+          resultType = parseInt(decodedData[0], 16);
+          handle = ethers.keccak256(
+            ethers.solidityPacked(["uint8", "bytes1", "uint256"], [Operators.fheRand, decodedData[0], counterRand]),
+          );
+          handle = appendType(handle, resultType);
+          clearText = getRandomBigInt(Number(NumBits[resultType]));
+          insertSQL(handle, clearText, true);
+          counterRand++;
+        }
         break;
-      }
-      case "fheRandBounded(uint256,bytes1)": {
-        resultType = parseInt(decodedData[1], 16);
-        handle = ethers.keccak256(
-          ethers.solidityPacked(
-            ["uint8", "uint256", "bytes1", "uint256"],
-            [Operators.fheRandBounded, decodedData[0], decodedData[1], counterRand],
-          ),
-        );
-        handle = appendType(handle, resultType);
-        clearText = getRandomBigInt(Number(log2(BigInt(decodedData[0]))));
-        insertSQL(handle, clearText, true);
-        counterRand++;
+
+      case "fheRandBounded(uint256,bytes1)":
+        if (validIdxes.includes(obj2.index)) {
+          resultType = parseInt(decodedData[1], 16);
+          handle = ethers.keccak256(
+            ethers.solidityPacked(
+              ["uint8", "uint256", "bytes1", "uint256"],
+              [Operators.fheRandBounded, decodedData[0], decodedData[1], counterRand],
+            ),
+          );
+          handle = appendType(handle, resultType);
+          clearText = getRandomBigInt(Number(log2(BigInt(decodedData[0]))));
+          insertSQL(handle, clearText, true);
+          counterRand++;
+        }
         break;
-      }
     }
   }
 }
@@ -755,9 +744,11 @@ function isCoprocAdd(longString: string): boolean {
   return normalizedLongString === coprocAdd;
 }
 
-async function processLogs(trace, blockNo) {
-  for (const obj of trace.structLogs.filter((obj) => obj.op === "CALL")) {
-    await insertHandle(obj, blockNo);
+async function processLogs(trace, validSubcallsIndexes) {
+  for (const obj of trace.structLogs
+    .map((value, index) => ({ value, index }))
+    .filter((obj) => obj.value.op === "CALL")) {
+    await insertHandle(obj, validSubcallsIndexes);
   }
 }
 
@@ -767,7 +758,9 @@ export const awaitCoprocessor = async (): Promise<void> => {
     const trace = await ethers.provider.send("debug_traceTransaction", [txHash[0]]);
 
     if (!trace.failed) {
-      await processLogs(trace, txHash[1]);
+      const callTree = await buildCallTree(trace, txHash[1]);
+      const validSubcallsIndexes = getValidSubcallsIds(callTree)[1];
+      await processLogs(trace, validSubcallsIndexes);
     }
   }
 };
@@ -775,7 +768,7 @@ export const awaitCoprocessor = async (): Promise<void> => {
 async function getAllPastTransactionHashes() {
   const provider = ethers.provider;
   const latestBlockNumber = await provider.getBlockNumber();
-  const txHashes: [string, number][] = [];
+  let txHashes = [];
 
   if (hre.__SOLIDITY_COVERAGE_RUNNING !== true) {
     // evm_snapshot is not supported in coverage mode
@@ -788,9 +781,10 @@ async function getAllPastTransactionHashes() {
 
   // Iterate through all blocks and collect transaction hashes
   for (let i = firstBlockListening; i <= latestBlockNumber; i++) {
-    const block = await provider.getBlock(i);
-    block!.transactions.forEach((tx) => {
-      txHashes.push([tx, i]);
+    const block = await provider.getBlock(i, true);
+    block!.transactions.forEach((tx, index) => {
+      const rcpt = block?.prefetchedTransactions[index];
+      txHashes.push([tx, { to: rcpt.to, status: rcpt.status }]);
     });
   }
   firstBlockListening = latestBlockNumber + 1;
@@ -801,74 +795,107 @@ async function getAllPastTransactionHashes() {
   return txHashes;
 }
 
-// async function buildCallTree(receipt: TransactionReceipt) {
-//   const txHash = receipt.hash;
-//   const trace = await ethers.provider.send("debug_traceTransaction", [txHash, {}]);
-//   const structLogs = trace.structLogs;
+async function buildCallTree(trace, receipt) {
+  const structLogs = trace.structLogs;
 
-//   const callStack = [];
-//   const callTree = {
-//     id: 0,
-//     type: !!receipt.to ? "TOPCALL" : "TOPCREATE",
-//     revert: receipt.status === 1 ? false : true,
-//     to: !!receipt.to ? receipt.to : null,
-//     calls: [],
-//   };
-//   let currentNode = callTree;
-//   const lenStructLogs = structLogs.length;
-//   let index = 1;
-//   for (const [i, log] of structLogs.entries()) {
-//     if (i < lenStructLogs - 1) {
-//       if (structLogs[i].depth - structLogs[i + 1].depth === 1) {
-//         if (!["RETURN", "SELFDESTRUCT", "STOP", "REVERT", "INVALID"].includes(structLogs[i].op)) {
-//           currentNode.outofgasOrOther = true;
-//           currentNode = callStack.pop();
-//         }
-//       }
-//     }
+  const callStack = [];
+  const callTree = {
+    id: 0,
+    type: !!receipt.to ? "TOPCALL" : "TOPCREATE",
+    revert: receipt.status === 1 ? false : true,
+    to: !!receipt.to ? receipt.to : null,
+    calls: [],
+    indexTrace: 0,
+  };
+  let currentNode = callTree;
+  const lenStructLogs = structLogs.length;
+  let index = 1;
+  for (const [i, log] of structLogs.entries()) {
+    if (i < lenStructLogs - 1) {
+      if (structLogs[i].depth - structLogs[i + 1].depth === 1) {
+        if (!["RETURN", "SELFDESTRUCT", "STOP", "REVERT", "INVALID"].includes(structLogs[i].op)) {
+          currentNode.outofgasOrOther = true;
+          currentNode = callStack.pop();
+        }
+      }
+    }
 
-//     switch (log.op) {
-//       case "CALL":
-//       case "DELEGATECALL":
-//       case "CALLCODE":
-//       case "STATICCALL":
-//       case "CREATE":
-//       case "CREATE2":
-//         if (i < lenStructLogs - 1) {
-//           if (structLogs[i + 1].depth - structLogs[i].depth === 1) {
-//             const newNode = {
-//               id: index,
-//               type: log.op,
-//               to: log.stack[log.stack.length - 2],
-//               calls: [],
-//               revert: true,
-//               outofgasOrOther: false,
-//             };
-//             currentNode.calls.push(newNode);
-//             callStack.push(currentNode);
-//             currentNode = newNode;
-//             index += 1;
-//           }
-//         }
-//         break;
-//       case "RETURN": // some edge case probably not handled well : if memory expansion cost on RETURN exceeds the remaining gas in current subcall, but it's OK for a mocked mode
-//       case "SELFDESTRUCT": // some edge case probably not handled well : if there is not enough gas remaining on SELFDESTRUCT, but it's OK for a mocked mode
-//       case "STOP":
-//         currentNode.revert = false;
-//         currentNode = callStack.pop();
-//         break;
-//       case "REVERT":
-//       case "INVALID":
-//         currentNode = callStack.pop();
-//         break;
-//     }
+    switch (log.op) {
+      case "CALL":
+      case "DELEGATECALL":
+      case "CALLCODE":
+      case "STATICCALL":
+      case "CREATE":
+      case "CREATE2":
+        if (i < lenStructLogs - 1) {
+          if (structLogs[i + 1].depth - structLogs[i].depth === 1) {
+            const newNode = {
+              id: index,
+              type: log.op,
+              to: log.stack[log.stack.length - 2],
+              calls: [],
+              revert: true,
+              outofgasOrOther: false,
+              indexTrace: i,
+            };
+            currentNode.calls.push(newNode);
+            callStack.push(currentNode);
+            currentNode = newNode;
+            index += 1;
+          }
+        }
+        break;
+      case "RETURN": // some edge case probably not handled well : if memory expansion cost on RETURN exceeds the remaining gas in current subcall, but it's OK for a mocked mode
+      case "SELFDESTRUCT": // some edge case probably not handled well : if there is not enough gas remaining on SELFDESTRUCT, but it's OK for a mocked mode
+      case "STOP":
+        currentNode.revert = false;
+        currentNode = callStack.pop();
+        break;
+      case "REVERT":
+      case "INVALID":
+        currentNode = callStack.pop();
+        break;
+    }
 
-//     switch (log.op) {
-//       case "CREATE":
-//       case "CREATE2":
-//         currentNode.to = null;
-//         break;
-//     }
-//   }
-//   return callTree;
-// }
+    switch (log.op) {
+      case "CREATE":
+      case "CREATE2":
+        currentNode.to = null;
+        break;
+    }
+  }
+  return callTree;
+}
+
+function logCallContextsTree(callContext, indent = 0) {
+  const indentation = " ".repeat(indent);
+  console.log(`${indentation}id: ${callContext.id}, type: ${callContext.type}, revert: ${callContext.revert}`);
+
+  if (callContext.calls.length > 0) {
+    console.log(`${indentation}  Calls:`);
+    for (const call of callContext.calls) {
+      logCallContextsTree(call, indent + 4);
+    }
+  }
+}
+
+function getValidSubcallsIds(tree) {
+  const result = [];
+  const resultIndexes = [];
+
+  function traverse(node, ancestorReverted) {
+    if (ancestorReverted || node.revert) {
+      ancestorReverted = true;
+    } else {
+      result.push(node.id);
+      resultIndexes.push(node.indexTrace);
+    }
+    for (const child of node.calls) {
+      traverse(child, ancestorReverted);
+    }
+  }
+
+  traverse(tree, false);
+
+  return [result, resultIndexes];
+}
