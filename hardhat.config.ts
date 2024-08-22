@@ -85,7 +85,6 @@ task("test", async (taskArgs, hre, runSuper) => {
   // Run modified test task
   if (hre.network.name === "hardhat") {
     // in fhevm mode all this block is done when launching the node via `pnmp fhevm:start`
-    await hre.run("clean");
     await hre.run("compile:specific", { contract: "contracts" });
     const sourceDir = path.resolve(__dirname, "node_modules/fhevm/");
     const destinationDir = path.resolve(__dirname, "fhevmTemp/");
@@ -99,11 +98,10 @@ task("test", async (taskArgs, hre, runSuper) => {
     fs.copyFileSync(sourceFile, destinationFile);
 
     const targetAddress = "0x000000000000000000000000000000000000005d";
-    const NeverRevert = await hre.artifacts.readArtifact("MockedPrecompile");
-    const bytecode = NeverRevert.deployedBytecode;
+    const MockedPrecompile = await hre.artifacts.readArtifact("MockedPrecompile");
+    const bytecode = MockedPrecompile.deployedBytecode;
     await hre.network.provider.send("hardhat_setCode", [targetAddress, bytecode]);
     console.log(`Code of Mocked Pre-compile set at address: ${targetAddress}`);
-    fs.removeSync("fhevmTemp/");
 
     const privKeyDeployer = process.env.PRIVATE_KEY_GATEWAY_DEPLOYER;
     await hre.run("task:computePredeployAddress", { privateKey: privKeyDeployer });
