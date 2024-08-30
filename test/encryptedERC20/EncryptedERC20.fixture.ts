@@ -1,3 +1,5 @@
+import { ethers } from "hardhat";
+
 import type { EncryptedERC20 } from "../../types";
 import { getSigners } from "../signers";
 
