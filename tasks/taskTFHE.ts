@@ -66,15 +66,15 @@ address constant fhevmCoprocessorAdd = ${execAddress};\n`;
 
 task("task:computeKMSVerifierAddress").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const deployer = (await ethers.getSigners())[9].address;
-  const kmsVerfierAddress = ethers.getCreateAddress({
+  const kmsVerifierAddress = ethers.getCreateAddress({
     from: deployer,
     nonce: 2, // using nonce of 2 for the Kms Verifier contract
   });
   const envFilePath = path.join(__dirname, "../node_modules/fhevm/lib/.env.kmsverifier");
-  const content = `KMS_VERIFIER_CONTRACT_ADDRESS=${kmsVerfierAddress}\n`;
+  const content = `KMS_VERIFIER_CONTRACT_ADDRESS=${kmsVerifierAddress}\n`;
   try {
     fs.writeFileSync(envFilePath, content, { flag: "w" });
-    console.log(`KMS Verifier address ${kmsVerfierAddress} written successfully!`);
+    console.log(`KMS Verifier address ${kmsVerifierAddress} written successfully!`);
   } catch (err) {
     console.error("Failed to write KMS Verifier address:", err);
   }
@@ -83,7 +83,7 @@ task("task:computeKMSVerifierAddress").setAction(async function (taskArguments: 
 
 pragma solidity ^0.8.24;
 
-address constant KMS_VERIFIER_CONTRACT_ADDRESS = ${kmsVerfierAddress};\n`;
+address constant KMS_VERIFIER_CONTRACT_ADDRESS = ${kmsVerifierAddress};\n`;
 
   try {
     fs.writeFileSync("node_modules/fhevm/lib/KMSVerifierAddress.sol", solidityTemplate, {
