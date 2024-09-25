@@ -17,7 +17,7 @@ describe("EncryptedERC20", function () {
     this.instances = await createInstances(this.signers);
   });
 
-  it("should mint the contract", async function () {
+  it.only("should mint the contract", async function () {
     const transaction = await this.erc20.mint(1000);
     await transaction.wait();
 

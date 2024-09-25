@@ -1,14 +1,9 @@
 #!/bin/bash
 
 # Assumes the following:
-# 1. A local and **fresh** fhEVM node is already running.
-# 2. All test addresses are funded (e.g. via the fund_test_addresses.sh script).
-npx hardhat clean
-PRIVATE_KEY_GATEWAY_DEPLOYER=$(grep PRIVATE_KEY_GATEWAY_DEPLOYER .env | cut -d '"' -f 2)
-npx hardhat task:computeACLAddress
-npx hardhat task:computeTFHEExecutorAddress
-npx hardhat task:computeKMSVerifierAddress
-npx hardhat task:computePredeployAddress --private-key "$PRIVATE_KEY_GATEWAY_DEPLOYER"
+# 1. Predeploys addresses have been precomputed via the precomputeAddresses.sh script.
+# 2. A local and **fresh** fhEVM node is already running.
+# 3. All test addresses are funded (e.g. via the fund_test_addresses.sh script).
 
 npx hardhat compile:specific --contract contracts
 

@@ -18,6 +18,7 @@ abi/
 # files
 *.env
 *.log
+.env.docker
 .DS_Store
 .pnp.*
 coverage.json
