@@ -3,8 +3,8 @@
 # Read MNEMONIC from .env file, remove 'export' and quotes
 MNEMONIC=$(grep MNEMONIC .env | cut -d '"' -f 2)
 PRIVATE_KEY_GATEWAY_DEPLOYER=$(grep PRIVATE_KEY_GATEWAY_DEPLOYER .env | cut -d '"' -f 2)
-PRIVATE_KEY_GATEWAY_OWNER=$(grep PRIVATE_KEY_GATEWAY_DEPLOYER .env | cut -d '"' -f 2)
-PRIVATE_KEY_GATEWAY_RELAYER=$(grep PRIVATE_KEY_GATEWAY_DEPLOYER .env | cut -d '"' -f 2)
+PRIVATE_KEY_GATEWAY_OWNER=$(grep PRIVATE_KEY_GATEWAY_OWNER .env | cut -d '"' -f 2)
+PRIVATE_KEY_GATEWAY_RELAYER=$(grep PRIVATE_KEY_GATEWAY_RELAYER .env | cut -d '"' -f 2)
 
 # Verify that global envs are set
 if [ -z "$MNEMONIC" ]; then
