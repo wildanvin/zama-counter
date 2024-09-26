@@ -32,12 +32,12 @@ generate-fhe-keys:
 
 run-full:
 	$(MAKE) generate-fhe-keys
-	@docker compose  -f docker-compose/docker-compose-full.yml  up --detach
+	@docker compose --env-file .env.docker -f docker-compose/docker-compose-full.yml up --detach
 	@echo 'sleep a little to let the docker start up'
 	sleep 5
 
 stop-full:
-	@docker compose  -f docker-compose/docker-compose-full.yml down
+	@docker compose --env-file .env.docker -f docker-compose/docker-compose-full.yml down
 
 
 clean:
