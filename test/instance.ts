@@ -1,5 +1,7 @@
+import dotenv from "dotenv";
 import { clientKeyDecryptor, createInstance as createFhevmInstance, getCiphertextCallParams } from "fhevmjs";
 import { readFileSync } from "fs";
+import * as fs from "fs";
 import { ethers, ethers as hethers, network } from "hardhat";
 import { homedir } from "os";
 import path from "path";
@@ -12,6 +14,9 @@ import { FhevmInstances } from "./types";
 const FHE_CLIENT_KEY_PATH = process.env.FHE_CLIENT_KEY_PATH;
 
 let clientKey: Uint8Array | undefined;
+
+const parsedEnvACL = dotenv.parse(fs.readFileSync("node_modules/fhevm/lib/.env.acl"));
+const aclAdd = parsedEnvACL.ACL_CONTRACT_ADDRESS;
 
 const createInstanceMocked = async () => {
   const instance = await createFhevmInstance({
@@ -46,6 +51,7 @@ export const createInstance = async () => {
   const instance = await createFhevmInstance({
     networkUrl: network.config.url,
     gatewayUrl: "http://localhost:7077",
+    aclAddress: aclAdd,
   });
   return instance;
 };
