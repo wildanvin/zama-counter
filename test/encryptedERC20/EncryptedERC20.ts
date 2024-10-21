@@ -39,7 +39,6 @@ describe("EncryptedERC20", function () {
       this.signers.alice.address,
     );
     expect(balanceAlice).to.equal(1000);
-
     const totalSupply = await this.erc20.totalSupply();
     expect(totalSupply).to.equal(1000);
   });
@@ -100,6 +99,21 @@ describe("EncryptedERC20", function () {
     );
 
     expect(balanceBob).to.equal(1337);
+
+    // on the other hand, Bob should be unable to read Alice's balance
+    try {
+      await this.instances.bob.reencrypt(
+        balanceHandleAlice,
+        privateKeyBob,
+        publicKeyBob,
+        signatureBob.replace("0x", ""),
+        this.contractAddress,
+        this.signers.bob.address,
+      );
+      expect.fail("Expected an error to be thrown - Bob should not be able to reencrypt Alice balance");
+    } catch (error) {
+      expect(error.message).to.equal("User is not authorized to reencrypt this handle!");
+    }
   });
 
   it("should not transfer tokens between two users", async function () {
