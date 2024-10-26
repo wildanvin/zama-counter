@@ -66,12 +66,10 @@ You can edit the CI script in [.github/workflows/ci.yml](./.github/workflows/ci.
 
 ### Pre Requisites
 
-Install [docker](https://docs.docker.com/engine/install/)
-
 Install [pnpm](https://pnpm.io/installation)
 
-Before being able to run any command, you need to create a `.env` file and set a BIP-39 compatible mnemonic as an
-environment variable. You can follow the example in `.env.example` and start with the following command:
+Before being able to run any command, you need to create a `.env` file and set a BIP-39 compatible mnemonic as the `MNEMONIC`
+environment variable. You can follow the example in `.env.example` or start with the following command:
 
 ```sh
 cp .env.example .env
@@ -79,38 +77,10 @@ cp .env.example .env
 
 If you don't already have a mnemonic, you can use this [website](https://iancoleman.io/bip39/) to generate one.
 
-Then, proceed with installing dependencies - please **_make sure to use Node v20_** or more recent or this will fail:
+Then, proceed with installing dependencies - please **_make sure to use Node v20_** or more recent:
 
 ```sh
 pnpm install
-```
-
-### Start fhEVM
-
-During installation (see previous section) we recommend you for easier setup to not change the default `.env` : simply
-copy the original `.env.example` file to a new `.env` file in the root of the repo.
-
-Then, start a local fhEVM docker compose that inlcudes everything needed to deploy FHE encrypted smart contracts using:
-
-```sh
-# In one terminal, keep it opened
-# The node logs are printed
-pnpm fhevm:start
-```
-
-Previous command will take 2 to 3 minutes to do the whole initial setup - wait until the blockchain logs appear to make
-sure setup is complete (we are working on making initial deployment faster).
-
-You can then run the tests simply in a new terminal via :
-
-```
-pnpm test
-```
-
-Once your done with your tests, to stop the node:
-
-```sh
-pnpm fhevm:stop
 ```
 
 ### Compile
@@ -129,38 +99,9 @@ Compile the smart contracts and generate TypeChain bindings:
 pnpm typechain
 ```
 
-### List accounts
-
-From the mnemonic in .env file, list all the derived Ethereum adresses:
-
-```sh
-pnpm task:accounts
-```
-
-### Get some native coins
-
-In order to interact with the blockchain, one need some coins. This command will give coins to the first 5 addresses
-derived from the mnemonic in .env file.
-
-```sh
-pnpm fhevm:faucet
-```
-
-<br />
-<details>
-  <summary>To get the first derived address from mnemonic</summary>
-<br />
-
-```sh
-pnpm task:getEthereumAddress
-```
-
-</details>
-<br />
-
 ### Test
 
-Run the tests with Hardhat:
+Run the tests with Hardhat - this will run the tests on a local hardhat node in mocked mode (i.e the FHE operations and decryptions will be simulated by default):
 
 ```sh
 pnpm test
@@ -182,13 +123,6 @@ Lint the TypeScript code:
 pnpm lint:ts
 ```
 
-### Report Gas
-
-See the gas usage per unit test and average gas per method call:
-
-```sh
-REPORT_GAS=true pnpm test
-```
 
 ### Clean
 
@@ -205,14 +139,14 @@ encrypted types are not really encrypted, and the tests are run on the original 
 network instance. To run the tests in mocked mode, you can use directly the following command:
 
 ```bash
-pnpm test:mock
+pnpm test
 ```
 
 To analyze the coverage of the tests (in mocked mode necessarily, as this cannot be done on the real fhEVM node), you
 can use this command :
 
 ```bash
-pnpm coverage:mock
+pnpm coverage
 ```
 
 Then open the file `coverage/index.html`. You can see there which line or branch for each contract which has been
@@ -220,7 +154,20 @@ covered or missed by your test suite. This allows increased security by pointing
 the current tests.
 
 > [!Note]
-> Due to intrinsic limitations of the original EVM, the mocked version differ in few corner cases from the real fhEVM, the main difference is the difference in gas prices for the FHE operations. This means that before deploying to production, developers still need to run the tests with the original fhEVM node, as a final check in non-mocked mode, with `pnpm test`.
+> Due to intrinsic limitations of the original EVM, the mocked version differ in few corner cases from the real fhEVM, the main difference is the difference in gas consumption for the FHE operations (native gas is around 5% overestimated in mocked mode). This means that before deploying to production, developers should still run the tests with the original fhEVM node, as a final check in non-mocked mode (see next section).
+
+### Non-mocked mode
+
+To run your test on a real fhevm node, you can use the coprocessor deployed on the Sepolia test network. To do this, ensure you are using a valid value `SEPOLIA_RPC_URL` in your `.env` file. Then you should use the following command:
+
+```bash
+npx hardhat test [PATH_TO_YOUR_TEST] --network sepolia
+```
+
+The `--network sepolia` flag will make your test run on a real fhevm coprocessor.
+
+> [!Note]
+> For this test to succeed, ensure you have funded your test accounts on Sepolia, and that you are passing the correct `FHEVMConfig` struct in the constructor of your deployed smart contract, as an argument to `TFHE.setFHEVM(...);` (see [fhevm documentation](https://docs.zama.ai/fhevm) for more details).
 
 ### Syntax Highlighting
 
