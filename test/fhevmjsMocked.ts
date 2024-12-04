@@ -7,13 +7,13 @@ import * as fs from "fs";
 import { Keccak } from "sha3";
 import { isAddress } from "web3-validator";
 
+import { ACL_ADDRESS } from "./constants";
 import { insertSQL } from "./coprocessorUtils";
 import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
 
 const hre = require("hardhat");
 
-const parsedEnvACL = dotenv.parse(fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.acl"));
-const aclAdd = parsedEnvACL.ACL_CONTRACT_ADDRESS;
+const aclAdd = ACL_ADDRESS;
 
 enum Types {
   ebool = 0,
@@ -309,29 +309,25 @@ export const createEncryptedInputMocked = (contractAddress: string, userAddress:
       // for native : numHandles + numSignersKMS + list_handles + signatureKMSSigners + bundleCiphertext (total len : 1+1+NUM_HANDLES*32+65*numSignersKMS+bundleCiphertext.length)
       const numSigners = +process.env.NUM_KMS_SIGNERS!;
       inputProof += numberToHex(numSigners);
-      if (process.env.IS_COPROCESSOR === "true") {
-        // coprocessor
-        inputProof += hash.toString("hex");
+      //if (process.env.IS_COPROCESSOR === "true") { // @note: for now we support only the coprocessor mode, not native
+      // coprocessor
+      inputProof += hash.toString("hex");
 
-        const listHandlesStr = handles.map((i) => uint8ArrayToHexString(i));
-        listHandlesStr.map((handle) => (inputProof += handle));
-        const listHandles = listHandlesStr.map((i) => BigInt("0x" + i));
-        const sigCoproc = await computeInputSignatureCopro(
-          "0x" + hash.toString("hex"),
-          listHandles,
-          userAddress,
-          contractAddress,
-        );
-        inputProof += sigCoproc.slice(2);
+      const listHandlesStr = handles.map((i) => uint8ArrayToHexString(i));
+      listHandlesStr.map((handle) => (inputProof += handle));
+      const listHandles = listHandlesStr.map((i) => BigInt("0x" + i));
+      const sigCoproc = await computeInputSignatureCopro(
+        "0x" + hash.toString("hex"),
+        listHandles,
+        userAddress,
+        contractAddress,
+      );
+      inputProof += sigCoproc.slice(2);
 
-        const signaturesKMS = await computeInputSignaturesKMS(
-          "0x" + hash.toString("hex"),
-          userAddress,
-          contractAddress,
-        );
-        signaturesKMS.map((sigKMS) => (inputProof += sigKMS.slice(2)));
-        listHandlesStr.map((handle, i) => insertSQL("0x" + handle, values[i]));
-      } else {
+      const signaturesKMS = await computeInputSignaturesKMS("0x" + hash.toString("hex"), userAddress, contractAddress);
+      signaturesKMS.map((sigKMS) => (inputProof += sigKMS.slice(2)));
+      listHandlesStr.map((handle, i) => insertSQL("0x" + handle, values[i]));
+      /*} else {
         // native
         const listHandlesStr = handles.map((i) => uint8ArrayToHexString(i));
         listHandlesStr.map((handle) => (inputProof += handle));
@@ -344,7 +340,7 @@ export const createEncryptedInputMocked = (contractAddress: string, userAddress:
         listHandlesStr.map((handle, i) => insertSQL("0x" + handle, values[i]));
 
         inputProof += encrypted.toString("hex");
-      }
+      }*/
 
       return {
         handles,
@@ -442,9 +438,7 @@ async function coprocSign(
     fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.inputverifier"),
   ).INPUT_VERIFIER_CONTRACT_ADDRESS;
   const chainId = hre.__SOLIDITY_COVERAGE_RUNNING ? 31337 : network.config.chainId;
-  const aclAdd = dotenv.parse(
-    fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.acl"),
-  ).ACL_CONTRACT_ADDRESS;
+  const aclAdd = ACL_ADDRESS;
 
   const domain = {
     name: "InputVerifier",
@@ -505,9 +499,7 @@ async function kmsSign(
     fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.kmsverifier"),
   ).KMS_VERIFIER_CONTRACT_ADDRESS;
   const chainId = hre.__SOLIDITY_COVERAGE_RUNNING ? 31337 : network.config.chainId;
-  const aclAdd = dotenv.parse(
-    fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.acl"),
-  ).ACL_CONTRACT_ADDRESS;
+  const aclAdd = ACL_ADDRESS;
 
   const domain = {
     name: "KMSVerifier",

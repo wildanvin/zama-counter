@@ -3,10 +3,12 @@
 pragma solidity ^0.8.24;
 
 import "fhevm/lib/TFHE.sol";
+import "fhevm/config/ZamaFHEVMConfig.sol";
+import "fhevm/config/ZamaGatewayConfig.sol";
 import "fhevm/gateway/GatewayCaller.sol";
 
 /// @notice Contract for testing asynchronous decryption using the Gateway
-contract TestAsyncDecrypt is GatewayCaller {
+contract TestAsyncDecrypt is SepoliaZamaFHEVMConfig, SepoliaZamaGatewayConfig, GatewayCaller {
     /// @dev Encrypted state variables
     ebool xBool;
     euint4 xUint4;
@@ -43,9 +45,6 @@ contract TestAsyncDecrypt is GatewayCaller {
 
     /// @notice Constructor to initialize the contract and set up encrypted values
     constructor() {
-        TFHE.setFHEVM(FHEVMConfig.defaultConfig());
-        Gateway.setGateway(Gateway.defaultGatewayAddress());
-
         /// @dev Initialize encrypted variables with sample values
         xBool = TFHE.asEbool(true);
         TFHE.allowThis(xBool);

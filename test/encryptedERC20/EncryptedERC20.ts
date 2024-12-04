@@ -77,22 +77,14 @@ describe("EncryptedERC20", function () {
     expect(balanceBob).to.equal(1337);
 
     // on the other hand, Bob should be unable to read Alice's balance
-    try {
-      await reencryptEuint64(this.signers, this.instances, "bob", balanceHandleAlice, this.contractAddress);
-      expect.fail("Expected an error to be thrown - Bob should not be able to reencrypt Alice balance");
-    } catch (error) {
-      expect(error.message).to.equal("User is not authorized to reencrypt this handle!");
-    }
+    await expect(
+      reencryptEuint64(this.signers, this.instances, "bob", balanceHandleAlice, this.contractAddress),
+    ).to.be.rejectedWith("User is not authorized to reencrypt this handle!");
 
     // and should be impossible to call reencrypt if contractAddress === userAddress
-    try {
-      await reencryptEuint64(this.signers, this.instances, "alice", balanceHandleAlice, this.signers.alice.address);
-      expect.fail("Expected an error to be thrown - userAddress and contractAddress cannot be equal");
-    } catch (error) {
-      expect(error.message).to.equal(
-        "userAddress should not be equal to contractAddress when requesting reencryption!",
-      );
-    }
+    await expect(
+      reencryptEuint64(this.signers, this.instances, "alice", balanceHandleAlice, this.signers.alice.address),
+    ).to.be.rejectedWith("userAddress should not be equal to contractAddress when requesting reencryption!");
   });
 
   it("should not transfer tokens between two users", async function () {

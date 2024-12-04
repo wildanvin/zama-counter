@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import {
   clientKeyDecryptor,
   createEIP712,
@@ -7,11 +6,11 @@ import {
   getCiphertextCallParams,
 } from "fhevmjs";
 import { readFileSync } from "fs";
-import * as fs from "fs";
 import { ethers, ethers as hethers, network } from "hardhat";
 import { homedir } from "os";
 import path from "path";
 
+import { ACL_ADDRESS, GATEWAY_URL, KMSVERIFIER_ADDRESS } from "./constants";
 import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
 import { createEncryptedInputMocked, reencryptRequestMocked } from "./fhevmjsMocked";
 import type { Signers } from "./signers";
@@ -21,12 +20,8 @@ const FHE_CLIENT_KEY_PATH = process.env.FHE_CLIENT_KEY_PATH;
 
 let clientKey: Uint8Array | undefined;
 
-const kmsAdd = dotenv.parse(
-  fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.kmsverifier"),
-).KMS_VERIFIER_CONTRACT_ADDRESS;
-const aclAdd = dotenv.parse(
-  fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.acl"),
-).ACL_CONTRACT_ADDRESS;
+const kmsAdd = KMSVERIFIER_ADDRESS;
+const aclAdd = ACL_ADDRESS;
 
 const createInstanceMocked = async () => {
   const instance = {
@@ -63,7 +58,7 @@ export const createInstance = async () => {
     kmsContractAddress: kmsAdd,
     aclContractAddress: aclAdd,
     networkUrl: network.config.url,
-    gatewayUrl: "http://localhost:7077",
+    gatewayUrl: GATEWAY_URL,
   });
   return instance;
 };

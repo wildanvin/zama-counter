@@ -3,14 +3,15 @@ import { Wallet } from "ethers";
 import fs from "fs";
 import { ethers, network } from "hardhat";
 
-import { GatewayContract } from "../types";
+import { ACL_ADDRESS, GATEWAYCONTRACT_ADDRESS } from "./constants";
 import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
 import { waitNBlocks } from "./utils";
 
+const gatewayArtifact = require("../node_modules/fhevm-core-contracts/artifacts/gateway/GatewayContract.sol/GatewayContract.json");
+
 const networkName = network.name;
 
-const parsedEnvACL = dotenv.parse(fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.acl"));
-const aclAdd = parsedEnvACL.ACL_CONTRACT_ADDRESS;
+const aclAdd = ACL_ADDRESS;
 
 const CiphertextType = {
   0: "bool",
@@ -32,7 +33,6 @@ const currentTime = (): string => {
   return now.toLocaleTimeString("en-US", { hour12: true, hour: "numeric", minute: "numeric", second: "numeric" });
 };
 
-const parsedEnv = dotenv.parse(fs.readFileSync("node_modules/fhevm/gateway/.env.gateway"));
 let relayer: Wallet;
 if (networkName === "hardhat") {
   const privKeyRelayer = process.env.PRIVATE_KEY_GATEWAY_RELAYER;
@@ -46,7 +46,7 @@ const ifaceEventDecryption = new ethers.Interface(["event EventDecryption" + arg
 const argEvents2 = "(uint256 indexed requestID, bool success, bytes result)";
 const ifaceResultCallback = new ethers.Interface(["event ResultCallback" + argEvents2]);
 
-let gateway: GatewayContract;
+let gateway;
 let firstBlockListening: number;
 let lastBlockSnapshotForDecrypt: number;
 
@@ -57,7 +57,7 @@ export const initGateway = async (): Promise<void> => {
     await ethers.provider.send("set_lastBlockSnapshotForDecrypt", [firstBlockListening]);
   }
   // this function will emit logs for every request and fulfilment of a decryption
-  gateway = await ethers.getContractAt("GatewayContract", parsedEnv.GATEWAY_CONTRACT_PREDEPLOY_ADDRESS);
+  gateway = await ethers.getContractAt(gatewayArtifact.abi, GATEWAYCONTRACT_ADDRESS);
   gateway.on(
     "EventDecryption",
     async (requestID, cts, contractCaller, callbackSelector, msgValue, maxTimestamp, eventData) => {
@@ -72,7 +72,7 @@ export const initGateway = async (): Promise<void> => {
 };
 
 export const awaitAllDecryptionResults = async (): Promise<void> => {
-  gateway = await ethers.getContractAt("GatewayContract", parsedEnv.GATEWAY_CONTRACT_PREDEPLOY_ADDRESS);
+  gateway = await ethers.getContractAt(gatewayArtifact.abi, GATEWAYCONTRACT_ADDRESS);
   const provider = ethers.provider;
   if (networkName === "hardhat" && hre.__SOLIDITY_COVERAGE_RUNNING !== true) {
     // evm_snapshot is not supported in coverage mode
@@ -93,7 +93,7 @@ const getAlreadyFulfilledDecryptions = async (): Promise<[bigint]> => {
   let results = [];
   const eventDecryptionResult = await gateway.filters.ResultCallback().getTopicFilter();
   const filterDecryptionResult = {
-    address: parsedEnv.GATEWAY_CONTRACT_PREDEPLOY_ADDRESS,
+    address: GATEWAYCONTRACT_ADDRESS,
     fromBlock: firstBlockListening,
     toBlock: "latest",
     topics: eventDecryptionResult,
@@ -110,7 +110,7 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
   const eventDecryption = await gateway.filters.EventDecryption().getTopicFilter();
   const results = await getAlreadyFulfilledDecryptions();
   const filterDecryption = {
-    address: parsedEnv.GATEWAY_CONTRACT_PREDEPLOY_ADDRESS,
+    address: GATEWAYCONTRACT_ADDRESS,
     fromBlock: firstBlockListening,
     toBlock: "latest",
     topics: eventDecryption,
@@ -169,7 +169,7 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
           .fulfillRequest(requestID, calldata, decryptResultsEIP712signatures, { value: msgValue });
         await tx.wait();
       } else {
-        // in fhEVM mode we must wait until the gateway service relayer submits the decryption fulfillment tx
+        // in non-mocked mode we must wait until the gateway service relayer submits the decryption fulfillment tx
         await waitNBlocks(1);
         await fulfillAllPastRequestsIds(mocked);
       }

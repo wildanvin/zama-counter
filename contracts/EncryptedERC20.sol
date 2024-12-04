@@ -3,11 +3,12 @@
 pragma solidity ^0.8.24;
 
 import "fhevm/lib/TFHE.sol";
+import "fhevm/config/ZamaFHEVMConfig.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /// @notice This contract implements an encrypted ERC20-like token with confidential balances using Zama's FHE (Fully Homomorphic Encryption) library.
 /// @dev It supports typical ERC20 functionality such as transferring tokens, minting, and setting allowances, but uses encrypted data types.
-contract EncryptedERC20 is Ownable2Step {
+contract EncryptedERC20 is SepoliaZamaFHEVMConfig, Ownable2Step {
     /// @notice Emitted when tokens are transferred
     event Transfer(address indexed from, address indexed to);
     /// @notice Emitted when a spender is approved to spend tokens on behalf of an owner
@@ -34,7 +35,6 @@ contract EncryptedERC20 is Ownable2Step {
     /// @param name_ The name of the token
     /// @param symbol_ The symbol of the token
     constructor(string memory name_, string memory symbol_) Ownable(msg.sender) {
-        TFHE.setFHEVM(FHEVMConfig.defaultConfig()); // Set up the FHEVM configuration for this contract
         _name = name_;
         _symbol = symbol_;
     }

@@ -83,14 +83,14 @@ task("task:deployInputVerifier")
   .setAction(async function (taskArguments: TaskArguments, { ethers, upgrades }) {
     const deployer = new ethers.Wallet(taskArguments.privateKey).connect(ethers.provider);
     let factory;
-    if (process.env.IS_COPROCESSOR === "true") {
-      factory = await ethers.getContractFactory(
-        "fhevmTemp/contracts/InputVerifier.coprocessor.sol:InputVerifier",
-        deployer,
-      );
-    } else {
+    //if (process.env.IS_COPROCESSOR === "true") { // @note: for now we support only the coprocessor mode, not native
+    factory = await ethers.getContractFactory(
+      "fhevmTemp/contracts/InputVerifier.coprocessor.sol:InputVerifier",
+      deployer,
+    );
+    /*} else {
       factory = await ethers.getContractFactory("fhevmTemp/contracts/InputVerifier.native.sol:InputVerifier", deployer);
-    }
+    }*/
     const kms = await upgrades.deployProxy(factory, [deployer.address], { initializer: "initialize", kind: "uups" });
     await kms.waitForDeployment();
     const address = await kms.getAddress();
