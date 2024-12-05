@@ -3,7 +3,7 @@ import { Wallet } from "ethers";
 import fs from "fs";
 import { ethers, network } from "hardhat";
 
-import { ACL_ADDRESS, GATEWAYCONTRACT_ADDRESS } from "./constants";
+import { ACL_ADDRESS, GATEWAYCONTRACT_ADDRESS, KMSVERIFIER_ADDRESS, PRIVATE_KEY_KMS_SIGNER } from "./constants";
 import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
 import { waitNBlocks } from "./utils";
 
@@ -28,16 +28,29 @@ const CiphertextType = {
   11: "bytes",
 };
 
+let initNull = false;
+async function impersonateNullAddress() {
+  // for mocked mode
+  const nullAddress = "0x0000000000000000000000000000000000000000";
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [nullAddress],
+  });
+  if (!initNull) {
+    await network.provider.send("hardhat_setBalance", [
+      nullAddress,
+      "0x56BC75E2D63100000", // 100 ETH in hex
+    ]);
+    initNull = true;
+  }
+  const nullSigner = await ethers.getSigner(nullAddress);
+  return nullSigner;
+}
+
 const currentTime = (): string => {
   const now = new Date();
   return now.toLocaleTimeString("en-US", { hour12: true, hour: "numeric", minute: "numeric", second: "numeric" });
 };
-
-let relayer: Wallet;
-if (networkName === "hardhat") {
-  const privKeyRelayer = process.env.PRIVATE_KEY_GATEWAY_RELAYER;
-  relayer = new ethers.Wallet(privKeyRelayer!, ethers.provider);
-}
 
 const argEvents =
   "(uint256 indexed requestID, uint256[] cts, address contractCaller, bytes4 callbackSelector, uint256 msgValue, uint256 maxTimestamp, bool passSignaturesToCaller)";
@@ -100,7 +113,6 @@ const getAlreadyFulfilledDecryptions = async (): Promise<[bigint]> => {
   };
   const pastResults = await ethers.provider.getLogs(filterDecryptionResult);
   results = results.concat(pastResults.map((result) => ifaceResultCallback.parseLog(result).args[0]));
-
   return results;
 };
 
@@ -130,8 +142,8 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
         await awaitCoprocessor();
 
         // first check tat all handles are allowed for decryption
-        const aclFactory = await ethers.getContractFactory("fhevmTemp/contracts/ACL.sol:ACL");
-        const acl = aclFactory.attach(aclAdd);
+        const aclArtifact = require("../node_modules/fhevm-core-contracts/artifacts/contracts/ACL.sol/ACL.json");
+        const acl = await ethers.getContractAt(aclArtifact.abi, ACL_ADDRESS);
         const isAllowedForDec = await Promise.all(handles.map(async (handle) => acl.isAllowedForDecryption(handle)));
         if (!allTrue(isAllowedForDec)) {
           throw new Error("Some handle is not authorized for decryption");
@@ -162,12 +174,13 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
           calldata = "0x" + encodedData.slice(66).slice(0, -64); // we also pop the last 32 bytes (empty bytes[])
         }
 
-        const numSigners = +process.env.NUM_KMS_SIGNERS!;
+        const numSigners = 1; // for the moment mocked mode only uses 1 signer
         const decryptResultsEIP712signatures = await computeDecryptSignatures(handles, calldata, numSigners);
+        const relayer = await impersonateNullAddress();
         const tx = await gateway
           .connect(relayer)
           .fulfillRequest(requestID, calldata, decryptResultsEIP712signatures, { value: msgValue });
-        await tx.wait();
+        const rcpt = await tx.wait();
       } else {
         // in non-mocked mode we must wait until the gateway service relayer submits the decryption fulfillment tx
         await waitNBlocks(1);
@@ -185,7 +198,7 @@ async function computeDecryptSignatures(
   const signatures: string[] = [];
 
   for (let idx = 0; idx < numSigners; idx++) {
-    const privKeySigner = process.env[`PRIVATE_KEY_KMS_SIGNER_${idx}`];
+    const privKeySigner = PRIVATE_KEY_KMS_SIGNER;
     if (privKeySigner) {
       const kmsSigner = new ethers.Wallet(privKeySigner).connect(ethers.provider);
       const signature = await kmsSign(handlesList, decryptedResult, kmsSigner);
@@ -198,9 +211,7 @@ async function computeDecryptSignatures(
 }
 
 async function kmsSign(handlesList: bigint[], decryptedResult: string, kmsSigner: Wallet) {
-  const kmsAdd = dotenv.parse(
-    fs.readFileSync("node_modules/fhevm-core-contracts/addresses/.env.kmsverifier"),
-  ).KMS_VERIFIER_CONTRACT_ADDRESS;
+  const kmsAdd = KMSVERIFIER_ADDRESS;
   const chainId = (await ethers.provider.getNetwork()).chainId;
 
   const domain = {

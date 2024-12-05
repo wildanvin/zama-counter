@@ -1,13 +1,13 @@
 import { expect } from "chai";
 
-import { createInstances } from "../instance";
+import { createInstance } from "../instance";
 import { reencryptEuint64 } from "../reencrypt";
 import { getSigners, initSigners } from "../signers";
 import { deployEncryptedERC20Fixture } from "./EncryptedERC20.fixture";
 
 describe("EncryptedERC20", function () {
   before(async function () {
-    await initSigners(2);
+    await initSigners();
     this.signers = await getSigners();
   });
 
@@ -15,7 +15,7 @@ describe("EncryptedERC20", function () {
     const contract = await deployEncryptedERC20Fixture();
     this.contractAddress = await contract.getAddress();
     this.erc20 = contract;
-    this.instances = await createInstances(this.signers);
+    this.fhevm = await createInstance();
   });
 
   it("should mint the contract", async function () {
@@ -26,7 +26,7 @@ describe("EncryptedERC20", function () {
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
       this.signers,
-      this.instances,
+      this.fhevm,
       "alice",
       balanceHandleAlice,
       this.contractAddress,
@@ -43,7 +43,7 @@ describe("EncryptedERC20", function () {
     const t1 = await transaction.wait();
     expect(t1?.status).to.eq(1);
 
-    const input = this.instances.alice.createEncryptedInput(this.contractAddress, this.signers.alice.address);
+    const input = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.alice.address);
     input.add64(1337);
     const encryptedTransferAmount = await input.encrypt();
     const tx = await this.erc20["transfer(address,bytes32,bytes)"](
@@ -58,7 +58,7 @@ describe("EncryptedERC20", function () {
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
       this.signers,
-      this.instances,
+      this.fhevm,
       "alice",
       balanceHandleAlice,
       this.contractAddress,
@@ -67,23 +67,17 @@ describe("EncryptedERC20", function () {
 
     // Reencrypt Bob's balance
     const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob = await reencryptEuint64(
-      this.signers,
-      this.instances,
-      "bob",
-      balanceHandleBob,
-      this.contractAddress,
-    );
+    const balanceBob = await reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleBob, this.contractAddress);
     expect(balanceBob).to.equal(1337);
 
     // on the other hand, Bob should be unable to read Alice's balance
     await expect(
-      reencryptEuint64(this.signers, this.instances, "bob", balanceHandleAlice, this.contractAddress),
+      reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleAlice, this.contractAddress),
     ).to.be.rejectedWith("User is not authorized to reencrypt this handle!");
 
     // and should be impossible to call reencrypt if contractAddress === userAddress
     await expect(
-      reencryptEuint64(this.signers, this.instances, "alice", balanceHandleAlice, this.signers.alice.address),
+      reencryptEuint64(this.signers, this.fhevm, "alice", balanceHandleAlice, this.signers.alice.address),
     ).to.be.rejectedWith("userAddress should not be equal to contractAddress when requesting reencryption!");
   });
 
@@ -91,7 +85,7 @@ describe("EncryptedERC20", function () {
     const transaction = await this.erc20.mint(1000);
     await transaction.wait();
 
-    const input = this.instances.alice.createEncryptedInput(this.contractAddress, this.signers.alice.address);
+    const input = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.alice.address);
     input.add64(1337);
     const encryptedTransferAmount = await input.encrypt();
     const tx = await this.erc20["transfer(address,bytes32,bytes)"](
@@ -104,7 +98,7 @@ describe("EncryptedERC20", function () {
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
       this.signers,
-      this.instances,
+      this.fhevm,
       "alice",
       balanceHandleAlice,
       this.contractAddress,
@@ -113,13 +107,7 @@ describe("EncryptedERC20", function () {
 
     // Reencrypt Bob's balance
     const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob = await reencryptEuint64(
-      this.signers,
-      this.instances,
-      "bob",
-      balanceHandleBob,
-      this.contractAddress,
-    );
+    const balanceBob = await reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleBob, this.contractAddress);
     expect(balanceBob).to.equal(0);
   });
 
@@ -127,7 +115,7 @@ describe("EncryptedERC20", function () {
     const transaction = await this.erc20.mint(10000);
     await transaction.wait();
 
-    const inputAlice = this.instances.alice.createEncryptedInput(this.contractAddress, this.signers.alice.address);
+    const inputAlice = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.alice.address);
     inputAlice.add64(1337);
     const encryptedAllowanceAmount = await inputAlice.encrypt();
     const tx = await this.erc20["approve(address,bytes32,bytes)"](
@@ -138,7 +126,7 @@ describe("EncryptedERC20", function () {
     await tx.wait();
 
     const bobErc20 = this.erc20.connect(this.signers.bob);
-    const inputBob1 = this.instances.bob.createEncryptedInput(this.contractAddress, this.signers.bob.address);
+    const inputBob1 = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.bob.address);
     inputBob1.add64(1338); // above allowance so next tx should actually not send any token
     const encryptedTransferAmount = await inputBob1.encrypt();
     const tx2 = await bobErc20["transferFrom(address,address,bytes32,bytes)"](
@@ -153,7 +141,7 @@ describe("EncryptedERC20", function () {
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
       this.signers,
-      this.instances,
+      this.fhevm,
       "alice",
       balanceHandleAlice,
       this.contractAddress,
@@ -162,16 +150,10 @@ describe("EncryptedERC20", function () {
 
     // Decrypt Bob's balance
     const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob = await reencryptEuint64(
-      this.signers,
-      this.instances,
-      "bob",
-      balanceHandleBob,
-      this.contractAddress,
-    );
+    const balanceBob = await reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleBob, this.contractAddress);
     expect(balanceBob).to.equal(0); // check that transfer did not happen, as expected
 
-    const inputBob2 = this.instances.bob.createEncryptedInput(this.contractAddress, this.signers.bob.address);
+    const inputBob2 = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.bob.address);
     inputBob2.add64(1337); // below allowance so next tx should send token
     const encryptedTransferAmount2 = await inputBob2.encrypt();
     const tx3 = await bobErc20["transferFrom(address,address,bytes32,bytes)"](
@@ -186,7 +168,7 @@ describe("EncryptedERC20", function () {
     const balanceHandleAlice2 = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice2 = await reencryptEuint64(
       this.signers,
-      this.instances,
+      this.fhevm,
       "alice",
       balanceHandleAlice2,
       this.contractAddress,
@@ -197,7 +179,7 @@ describe("EncryptedERC20", function () {
     const balanceHandleBob2 = await this.erc20.balanceOf(this.signers.bob);
     const balanceBob2 = await reencryptEuint64(
       this.signers,
-      this.instances,
+      this.fhevm,
       "bob",
       balanceHandleBob2,
       this.contractAddress,
