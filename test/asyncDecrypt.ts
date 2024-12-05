@@ -177,10 +177,9 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
         const numSigners = 1; // for the moment mocked mode only uses 1 signer
         const decryptResultsEIP712signatures = await computeDecryptSignatures(handles, calldata, numSigners);
         const relayer = await impersonateNullAddress();
-        const tx = await gateway
+        await gateway
           .connect(relayer)
           .fulfillRequest(requestID, calldata, decryptResultsEIP712signatures, { value: msgValue });
-        const rcpt = await tx.wait();
       } else {
         // in non-mocked mode we must wait until the gateway service relayer submits the decryption fulfillment tx
         await waitNBlocks(1);

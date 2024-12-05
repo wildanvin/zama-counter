@@ -154,7 +154,7 @@ covered or missed by your test suite. This allows increased security by pointing
 the current tests.
 
 > [!Note]
-> Due to intrinsic limitations of the original EVM, the mocked version differ in few corner cases from the real fhEVM, the main difference is the difference in gas consumption for the FHE operations (native gas is around 5% overestimated in mocked mode). This means that before deploying to production, developers should still run the tests with the original fhEVM node, as a final check in non-mocked mode (see next section).
+> Due to intrinsic limitations of the original EVM, the mocked version differ in few corner cases from the real fhEVM, the main difference is the difference in gas consumption for the FHE operations (native gas is around 5% underestimated in mocked mode). This means that before deploying to production, developers should still run the tests with the original fhEVM node, as a final check in non-mocked mode (see next section).
 
 ### Non-mocked mode
 
