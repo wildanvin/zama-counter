@@ -35,7 +35,7 @@ describe("EncryptedERC20:FHEGas", function () {
     expect(t2?.status).to.eq(1);
     const FHEGasConsumedTransfer = getFHEGasFromTxReceipt(t2);
     console.log("FHEGas Consumed during transfer", FHEGasConsumedTransfer);
-    // @note: contrarily to the FHEGas, native gas in mocked mode slightly differs from the real gas consumption on fhevm (off by ~5%)
+    // @note: contrarily to FHEGas, native gas in mocked mode slightly differs from the real gas consumption on fhevm (underestimated by ~20%)
     console.log("Native Gas Consumed during transfer", t2.gasUsed);
   });
 
@@ -66,7 +66,7 @@ describe("EncryptedERC20:FHEGas", function () {
     const t3 = await tx3.wait();
     const FHEGasConsumedTransferFrom = getFHEGasFromTxReceipt(t3);
     console.log("FHEGas Consumed during transferFrom", FHEGasConsumedTransferFrom);
-    // @note: contrarily to the FHEGas, native gas in mocked mode slightly differs from the real gas consumption on fhevm (off by ~5%)
+    // @note: contrarily to FHEGas, native gas in mocked mode slightly differs from the real gas consumption on fhevm (underestimated by ~20%)
     console.log("Native Gas Consumed during transfer", t3.gasUsed);
   });
 });
