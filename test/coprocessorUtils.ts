@@ -16,7 +16,7 @@ let counterRand = 0;
 //const db = new Database('./sql.db'); // on-disk db for debugging
 const db = new Database(":memory:");
 
-export function insertSQL(handle: string, clearText: BigInt, replace: boolean = false) {
+export function insertSQL(handle: string, clearText: bigint, replace: boolean = false) {
   if (replace) {
     // this is useful if using snapshots while sampling different random numbers on each revert
     db.run("INSERT OR REPLACE INTO ciphertexts (handle, clearText) VALUES (?, ?)", [handle, clearText.toString()]);
@@ -27,7 +27,7 @@ export function insertSQL(handle: string, clearText: BigInt, replace: boolean = 
 
 // Decrypt any handle, bypassing ACL
 // WARNING : only for testing or internal use
-export const getClearText = async (handle: BigInt): Promise<string> => {
+export const getClearText = async (handle: bigint): Promise<string> => {
   const handleStr = "0x" + handle.toString(16).padStart(64, "0");
 
   return new Promise((resolve, reject) => {
@@ -102,7 +102,7 @@ function getRandomBigInt(numBits: number): bigint {
   return randomBigInt;
 }
 
-function bitwiseNotUintBits(value: BigInt, numBits: number) {
+function bitwiseNotUintBits(value: bigint, numBits: number) {
   if (typeof value !== "bigint") {
     throw new TypeError("The input value must be a BigInt.");
   }

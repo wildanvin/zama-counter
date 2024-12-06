@@ -8,6 +8,8 @@ import "fhevm/config/ZamaGatewayConfig.sol";
 import "fhevm/gateway/GatewayCaller.sol";
 
 /// @notice Contract for testing asynchronous decryption using the Gateway
+/* solhint-disable max-states-count*/
+/* solhint-disable var-name-mixedcase*/
 contract TestAsyncDecrypt is SepoliaZamaFHEVMConfig, SepoliaZamaGatewayConfig, GatewayCaller {
     /// @dev Encrypted state variables
     ebool xBool;
