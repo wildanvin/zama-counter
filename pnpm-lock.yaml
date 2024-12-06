@@ -84,8 +84,8 @@ devDependencies:
     specifier: ^0.6.0
     version: 0.6.0
   fhevm-contracts:
-    specifier: 0.2.0-0
-    version: 0.2.0-0
+    specifier: 0.2.0
+    version: 0.2.0
   fhevm-core-contracts:
     specifier: 0.6.0-5
     version: 0.6.0-5
@@ -3180,8 +3180,8 @@ packages:
       regexparam: 3.0.0
     dev: true
 
-  /fhevm-contracts@0.2.0-0:
-    resolution: {integrity: sha512-8+vQLisBExZwSP3knUAj77hqLy3wnYHP53JbEd3A9xaskFFFqMeFsSBoV+TlJWja/0HwRA9v0OMmhaM8bqGHEg==}
+  /fhevm-contracts@0.2.0:
+    resolution: {integrity: sha512-uzNDsz1BFMACk3OG1bHnsPpB0+tof9ld8kbuqEZAGqE0ughlaHJxvFOT1UUNXjDtcML9prJJTCSiX2hXDMhm0w==}
     dependencies:
       '@openzeppelin/contracts': 5.0.2
       '@openzeppelin/contracts-upgradeable': 5.0.2(@openzeppelin/contracts@5.0.2)

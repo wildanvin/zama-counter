@@ -4,7 +4,7 @@ import { network } from "hardhat";
 import { createInstance } from "../instance";
 import { reencryptEuint64 } from "../reencrypt";
 import { getSigners, initSigners } from "../signers";
-import { fhevmDebug } from "../utils";
+import { debug } from "../utils";
 import { deployConfidentialERC20Fixture } from "./ConfidentialERC20.fixture";
 
 describe("ConfidentialERC20", function () {
@@ -189,9 +189,9 @@ describe("ConfidentialERC20", function () {
     expect(balanceBob2).to.equal(1337); // check that transfer did happen this time
   });
 
-  it("DEBUG - using fhevmDebug.decrypt64 for debugging transfer", async function () {
+  it("DEBUG - using debug.decrypt64 for debugging transfer", async function () {
     if (network.name === "hardhat") {
-      // using the fhevmDebug.decryptXX functions is possible only in mocked mode
+      // using the debug.decryptXX functions is possible only in mocked mode
 
       const transaction = await this.erc20.mint(1000);
       await transaction.wait();
@@ -206,12 +206,12 @@ describe("ConfidentialERC20", function () {
       await tx.wait();
 
       const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
-      const balanceAlice = await fhevmDebug.decrypt64(balanceHandleAlice);
+      const balanceAlice = await debug.decrypt64(balanceHandleAlice);
       expect(balanceAlice).to.equal(1000);
 
       // Reencrypt Bob's balance
       const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-      const balanceBob = await fhevmDebug.decrypt64(balanceHandleBob);
+      const balanceBob = await debug.decrypt64(balanceHandleBob);
       expect(balanceBob).to.equal(0);
     }
   });

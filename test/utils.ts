@@ -84,7 +84,7 @@ function verifyType(handle: bigint, expectedType: number) {
   }
 }
 
-export const fhevmDebug = {
+export const debug = {
   /**
    * @debug
    * This function is intended for debugging purposes only.
@@ -100,7 +100,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return (await getClearText(handle)) === "1";
     } else {
-      throw Error("The fhevmDebug.decryptBool function can only be called in mocked mode");
+      throw Error("The debug.decryptBool function can only be called in mocked mode");
     }
   },
 
@@ -119,7 +119,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt4 function can only be called in mocked mode");
+      throw Error("The debug.decrypt4 function can only be called in mocked mode");
     }
   },
 
@@ -138,7 +138,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt8 function can only be called in mocked mode");
+      throw Error("The debug.decrypt8 function can only be called in mocked mode");
     }
   },
 
@@ -157,7 +157,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt16 function can only be called in mocked mode");
+      throw Error("The debug.decrypt16 function can only be called in mocked mode");
     }
   },
 
@@ -176,7 +176,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt32 function can only be called in mocked mode");
+      throw Error("The debug.decrypt32 function can only be called in mocked mode");
     }
   },
 
@@ -195,7 +195,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt64 function can only be called in mocked mode");
+      throw Error("The debug.decrypt64 function can only be called in mocked mode");
     }
   },
 
@@ -214,7 +214,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt128 function can only be called in mocked mode");
+      throw Error("The debug.decrypt128 function can only be called in mocked mode");
     }
   },
 
@@ -233,7 +233,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return BigInt(await getClearText(handle));
     } else {
-      throw Error("The fhevmDebug.decrypt256 function can only be called in mocked mode");
+      throw Error("The debug.decrypt256 function can only be called in mocked mode");
     }
   },
 
@@ -254,7 +254,7 @@ export const fhevmDebug = {
       const handleStr = "0x" + bigintAdd.toString(16).padStart(40, "0");
       return handleStr;
     } else {
-      throw Error("The fhevmDebug.decryptAddress function can only be called in mocked mode");
+      throw Error("The debug.decryptAddress function can only be called in mocked mode");
     }
   },
 
@@ -273,7 +273,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return ethers.toBeHex(await getClearText(handle), 64);
     } else {
-      throw Error("The fhevmDebug.decryptEbytes64 function can only be called in mocked mode");
+      throw Error("The debug.decryptEbytes64 function can only be called in mocked mode");
     }
   },
 
@@ -292,7 +292,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return ethers.toBeHex(await getClearText(handle), 128);
     } else {
-      throw Error("The fhevmDebug.decryptEbytes128 function can only be called in mocked mode");
+      throw Error("The debug.decryptEbytes128 function can only be called in mocked mode");
     }
   },
 
@@ -311,7 +311,7 @@ export const fhevmDebug = {
       await awaitCoprocessor();
       return ethers.toBeHex(await getClearText(handle), 256);
     } else {
-      throw Error("The fhevmDebug.decryptEbytes256 function can only be called in mocked mode");
+      throw Error("The debug.decryptEbytes256 function can only be called in mocked mode");
     }
   },
 };
