@@ -27,9 +27,8 @@ describe("ConfidentialERC20", function () {
     // Reencrypt Alice's balance
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
-      this.signers,
+      this.signers.alice,
       this.fhevm,
-      "alice",
       balanceHandleAlice,
       this.contractAddress,
     );
@@ -59,9 +58,8 @@ describe("ConfidentialERC20", function () {
     // Reencrypt Alice's balance
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
-      this.signers,
+      this.signers.alice,
       this.fhevm,
-      "alice",
       balanceHandleAlice,
       this.contractAddress,
     );
@@ -69,17 +67,17 @@ describe("ConfidentialERC20", function () {
 
     // Reencrypt Bob's balance
     const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob = await reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleBob, this.contractAddress);
+    const balanceBob = await reencryptEuint64(this.signers.bob, this.fhevm, balanceHandleBob, this.contractAddress);
     expect(balanceBob).to.equal(1337);
 
     // on the other hand, Bob should be unable to read Alice's balance
     await expect(
-      reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleAlice, this.contractAddress),
+      reencryptEuint64(this.signers.bob, this.fhevm, balanceHandleAlice, this.contractAddress),
     ).to.be.rejectedWith("User is not authorized to reencrypt this handle!");
 
     // and should be impossible to call reencrypt if contractAddress === userAddress
     await expect(
-      reencryptEuint64(this.signers, this.fhevm, "alice", balanceHandleAlice, this.signers.alice.address),
+      reencryptEuint64(this.signers.alice, this.fhevm, balanceHandleAlice, this.signers.alice.address),
     ).to.be.rejectedWith("userAddress should not be equal to contractAddress when requesting reencryption!");
   });
 
@@ -99,9 +97,8 @@ describe("ConfidentialERC20", function () {
 
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
-      this.signers,
+      this.signers.alice,
       this.fhevm,
-      "alice",
       balanceHandleAlice,
       this.contractAddress,
     );
@@ -109,7 +106,7 @@ describe("ConfidentialERC20", function () {
 
     // Reencrypt Bob's balance
     const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob = await reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleBob, this.contractAddress);
+    const balanceBob = await reencryptEuint64(this.signers.bob, this.fhevm, balanceHandleBob, this.contractAddress);
     expect(balanceBob).to.equal(0);
   });
 
@@ -142,9 +139,8 @@ describe("ConfidentialERC20", function () {
     // Decrypt Alice's balance
     const balanceHandleAlice = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice = await reencryptEuint64(
-      this.signers,
+      this.signers.alice,
       this.fhevm,
-      "alice",
       balanceHandleAlice,
       this.contractAddress,
     );
@@ -152,7 +148,7 @@ describe("ConfidentialERC20", function () {
 
     // Decrypt Bob's balance
     const balanceHandleBob = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob = await reencryptEuint64(this.signers, this.fhevm, "bob", balanceHandleBob, this.contractAddress);
+    const balanceBob = await reencryptEuint64(this.signers.bob, this.fhevm, balanceHandleBob, this.contractAddress);
     expect(balanceBob).to.equal(0); // check that transfer did not happen, as expected
 
     const inputBob2 = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.bob.address);
@@ -169,9 +165,8 @@ describe("ConfidentialERC20", function () {
     // Decrypt Alice's balance
     const balanceHandleAlice2 = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice2 = await reencryptEuint64(
-      this.signers,
+      this.signers.alice,
       this.fhevm,
-      "alice",
       balanceHandleAlice2,
       this.contractAddress,
     );
@@ -179,13 +174,7 @@ describe("ConfidentialERC20", function () {
 
     // Decrypt Bob's balance
     const balanceHandleBob2 = await this.erc20.balanceOf(this.signers.bob);
-    const balanceBob2 = await reencryptEuint64(
-      this.signers,
-      this.fhevm,
-      "bob",
-      balanceHandleBob2,
-      this.contractAddress,
-    );
+    const balanceBob2 = await reencryptEuint64(this.signers.bob, this.fhevm, balanceHandleBob2, this.contractAddress);
     expect(balanceBob2).to.equal(1337); // check that transfer did happen this time
   });
 

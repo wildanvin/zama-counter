@@ -9,7 +9,7 @@ export interface Signers {
   [K in AccountNames]: HardhatEthersSigner;
 }
 
-let signers: Signers = {} as Signers;
+const signers: Signers = {} as Signers;
 
 export const initSigners = async (): Promise<void> => {
   if (Object.entries(signers).length === 0) {

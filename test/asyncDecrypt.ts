@@ -1,4 +1,5 @@
 import { Wallet, ZeroAddress } from "ethers";
+import gatewayArtifact from "fhevm-core-contracts/artifacts/gateway/GatewayContract.sol/GatewayContract.json";
 import { ethers, network } from "hardhat";
 
 import { ACL_ADDRESS, GATEWAYCONTRACT_ADDRESS, KMSVERIFIER_ADDRESS, PRIVATE_KEY_KMS_SIGNER } from "./constants";
@@ -6,10 +7,7 @@ import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
 import { impersonateAddress } from "./mockedSetup";
 import { waitNBlocks } from "./utils";
 
-const gatewayArtifact = require("fhevm-core-contracts/artifacts/gateway/GatewayContract.sol/GatewayContract.json");
-
 const networkName = network.name;
-
 const aclAdd = ACL_ADDRESS;
 
 const CiphertextType = {
