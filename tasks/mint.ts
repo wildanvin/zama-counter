@@ -2,6 +2,8 @@ import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
+import { MyConfidentialERC20 } from "../types";
+
 task("task:deployConfidentialERC20").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const signers = await ethers.getSigners();
   const erc20Factory = await ethers.getContractFactory("MyConfidentialERC20");
@@ -18,7 +20,7 @@ task("task:mint")
 
     const signers = await ethers.getSigners();
 
-    const erc20 = (await ethers.getContractAt("MyConfidentialERC20", ERC20.address)) as any;
+    const erc20 = (await ethers.getContractAt("MyConfidentialERC20", ERC20.address)) as MyConfidentialERC20;
 
     const tx = await erc20.connect(signers[0]).mint(+taskArguments.mint);
     const rcpt = await tx.wait();
