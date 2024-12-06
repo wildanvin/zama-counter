@@ -162,7 +162,7 @@ Finally, a new fhevm-specific feature is available in mocked mode: the `debug.de
 
 ### Non-mocked mode - Sepolia
 
-To run your test on a real fhevm node, you can use the coprocessor deployed on the Sepolia test network. To do this, ensure you are using a valid value `SEPOLIA_RPC_URL` in your `.env` file. You can get free Sepolia RPC URLs by creating an account on services such as [Infura](https://www.infura.io/) or [Alchemy](https://www.alchemy.com/). Then you should use the following command:
+To run your test on a real fhevm node, you can use the coprocessor deployed on the Sepolia test network. To do this, ensure you are using a valid value `SEPOLIA_RPC_URL` in your `.env` file. You can get free Sepolia RPC URLs by creating an account on services such as [Infura](https://www.infura.io/) or [Alchemy](https://www.alchemy.com/). Then you can use the following command:
 
 ```bash
 npx hardhat test [PATH_TO_YOUR_TEST] --network sepolia
@@ -178,6 +178,31 @@ npx hardhat get-accounts --num-accounts 5
 This will let you add them to the Metamask app, to easily fund them from your personal wallet. 
 
 If you don't own already Sepolia test tokens, you can for example use a free faucet such as [https://sepolia-faucet.pk910.de/](https://sepolia-faucet.pk910.de/).
+
+Another faster way to test the coprocessor on Sepolia is to simply run the following command:
+```
+pnpm deploy-sepolia
+```
+This would automatically deploy an instance of the `MyConfidentialERC20` example contract on Sepolia. You could then use this other command to mint some amount of confidential tokens: 
+```
+pnpm mint-sepolia
+```
+
+### Etherscan verification
+
+If you are using a real instance of the fhEVM, you can verify your deployed contracts on the Etherscan explorer. 
+You first need to set the `ETHERSCAN_API_KEY` variable in the `.env` file to a valid value. You can get such an API key for free by creating an account on the [Etherscan website](https://docs.etherscan.io/getting-started/viewing-api-usage-statistics). 
+
+Then, simply use the `verify-deployed` hardhat task, via this command:
+```
+npx hardhat verify-deployed --address [ADDRESS_CONTRACT_TO_VERIFY] --contract [FULL_CONTRACT_PATH] --args "[CONSTRUCTOR_ARGUMENTS_COMMA_SEPARATED]" --network [NETWORK_NAME]
+```
+As a concrete example, to verify the deployed `MyConfidentialERC20` from previous section, you can use:
+```
+npx hardhat verify-deployed --address [CONFIDENTIAL_ERC20_ADDRESS] --contract contracts/MyConfidentialERC20.sol:MyConfidentialERC20 --args "Naraggara,NARA" --network sepolia
+```
+
+Note that you should replace the address placeholder `[CONFIDENTIAL_ERC20_ADDRESS]` by the concrete address that is logged when you run the `pnpm deploy-sepolia` deployment script.
 
 ### Syntax Highlighting
 

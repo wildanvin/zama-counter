@@ -11,7 +11,8 @@ import { resolve } from "path";
 import CustomProvider from "./CustomProvider";
 // Adjust the import path as needed
 import "./tasks/accounts";
-import "./tasks/mint";
+import "./tasks/etherscanVerify";
+import "./tasks/mintMyConfidentialERC20";
 import { setCodeMocked } from "./test/mockedSetup";
 
 extendProvider(async (provider) => {
