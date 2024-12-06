@@ -15,7 +15,7 @@ import "./tasks/accounts";
 import "./tasks/mint";
 import { setCodeMocked } from "./test/mockedSetup";
 
-extendProvider(async (provider, config, network) => {
+extendProvider(async (provider) => {
   const newProvider = new CustomProvider(provider);
   return newProvider;
 });

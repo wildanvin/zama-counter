@@ -83,6 +83,9 @@ devDependencies:
   fhevm:
     specifier: ^0.6.0
     version: 0.6.0
+  fhevm-contracts:
+    specifier: 0.2.0-0
+    version: 0.2.0-0
   fhevm-core-contracts:
     specifier: 0.6.0-5
     version: 0.6.0-5
@@ -1213,6 +1216,18 @@ packages:
       rimraf: 3.0.2
     dev: true
     optional: true
+
+  /@openzeppelin/contracts-upgradeable@5.0.2(@openzeppelin/contracts@5.0.2):
+    resolution: {integrity: sha512-0MmkHSHiW2NRFiT9/r5Lu4eJq5UJ4/tzlOgYXNAIj/ONkQTVnz22pLxDvp4C4uZ9he7ZFvGn3Driptn1/iU7tQ==}
+    peerDependencies:
+      '@openzeppelin/contracts': 5.0.2
+    dependencies:
+      '@openzeppelin/contracts': 5.0.2
+    dev: true
+
+  /@openzeppelin/contracts@5.0.2:
+    resolution: {integrity: sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA==}
+    dev: true
 
   /@openzeppelin/contracts@5.1.0:
     resolution: {integrity: sha512-p1ULhl7BXzjjbha5aqst+QMLY+4/LCWADXOCsmLHRM77AqiPjnd9vvUN9sosUfhL9JGKpZ0TjEGxgvnizmWGSA==}
@@ -3163,6 +3178,18 @@ packages:
       glob-to-regexp: 0.4.1
       is-subset: 0.1.1
       regexparam: 3.0.0
+    dev: true
+
+  /fhevm-contracts@0.2.0-0:
+    resolution: {integrity: sha512-8+vQLisBExZwSP3knUAj77hqLy3wnYHP53JbEd3A9xaskFFFqMeFsSBoV+TlJWja/0HwRA9v0OMmhaM8bqGHEg==}
+    dependencies:
+      '@openzeppelin/contracts': 5.0.2
+      '@openzeppelin/contracts-upgradeable': 5.0.2(@openzeppelin/contracts@5.0.2)
+      extra-bigint: 1.2.0
+      sqlite3: 5.1.7
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
     dev: true
 
   /fhevm-core-contracts@0.6.0-5:

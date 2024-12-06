@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { ProviderWrapper } from "hardhat/plugins";
 import type { EIP1193Provider, RequestArguments } from "hardhat/types";
 

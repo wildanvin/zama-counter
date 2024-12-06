@@ -36,6 +36,7 @@
     "ethers": "^6.8.0",
     "extra-bigint": "^1.1.18",
     "fhevm": "^0.6.0",
+    "fhevm-contracts": "0.2.0-0",
     "fhevm-core-contracts": "0.6.0-5",
     "fhevmjs": "^0.6.0",
     "fs-extra": "^10.1.0",
@@ -90,6 +91,7 @@
     "prettier:write": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\"",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "test": "hardhat test --network hardhat",
-    "coverage": "hardhat coverage"
+    "coverage": "hardhat coverage",
+    "deploy-sepolia": "hardhat deploy --network sepolia"
   }
 }

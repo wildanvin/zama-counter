@@ -251,6 +251,7 @@ describe("TestAsyncDecrypt", function () {
 
   it("test async decrypt ebytes256 non-trivial with snapshot [skip-on-coverage]", async function () {
     if (network.name === "hardhat") {
+      // calling evm_snapshot is possible only in mocked mode
       this.snapshotId = await ethers.provider.send("evm_snapshot");
       const inputAlice = this.fhevm.createEncryptedInput(this.contractAddress, this.signers.alice.address);
       inputAlice.addBytes256(bigIntToBytes256(18446744073709550022n));
