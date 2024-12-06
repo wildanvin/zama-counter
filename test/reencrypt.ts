@@ -1,6 +1,10 @@
 import { FhevmInstance } from "fhevmjs/node";
 
+import { ACCOUNT_NAMES } from "./constants";
 import { Signers } from "./signers";
+
+// Add type definition at the top of the file
+type AccountName = (typeof ACCOUNT_NAMES)[number];
 
 const EBOOL_T = 0;
 const EUINT4_T = 1;
@@ -34,7 +38,7 @@ export function verifyType(handle: bigint, expectedType: number) {
 export async function reencryptEbool(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<boolean> {
@@ -45,7 +49,7 @@ export async function reencryptEbool(
 export async function reencryptEuint4(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -56,7 +60,7 @@ export async function reencryptEuint4(
 export async function reencryptEuint8(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -67,7 +71,7 @@ export async function reencryptEuint8(
 export async function reencryptEuint16(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -78,7 +82,7 @@ export async function reencryptEuint16(
 export async function reencryptEuint32(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -89,7 +93,7 @@ export async function reencryptEuint32(
 export async function reencryptEuint64(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -100,7 +104,7 @@ export async function reencryptEuint64(
 export async function reencryptEuint128(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -111,7 +115,7 @@ export async function reencryptEuint128(
 export async function reencryptEaddress(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<string> {
@@ -124,7 +128,7 @@ export async function reencryptEaddress(
 export async function reencryptEuint256(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -135,7 +139,7 @@ export async function reencryptEuint256(
 export async function reencryptEbytes64(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -146,7 +150,7 @@ export async function reencryptEbytes64(
 export async function reencryptEbytes128(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -157,7 +161,7 @@ export async function reencryptEbytes128(
 export async function reencryptEbytes256(
   signers: Signers,
   instances: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<bigint> {
@@ -172,7 +176,7 @@ export async function reencryptEbytes256(
 async function reencryptHandle(
   signers: Signers,
   instance: FhevmInstance,
-  user: string,
+  user: AccountName,
   handle: bigint,
   contractAddress: string,
 ): Promise<any> {

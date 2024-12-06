@@ -1,13 +1,12 @@
-import dotenv from "dotenv";
-import { Wallet } from "ethers";
-import fs from "fs";
+import { Wallet, ZeroAddress } from "ethers";
 import { ethers, network } from "hardhat";
 
 import { ACL_ADDRESS, GATEWAYCONTRACT_ADDRESS, KMSVERIFIER_ADDRESS, PRIVATE_KEY_KMS_SIGNER } from "./constants";
 import { awaitCoprocessor, getClearText } from "./coprocessorUtils";
+import { impersonateAddress } from "./mockedSetup";
 import { waitNBlocks } from "./utils";
 
-const gatewayArtifact = require("../node_modules/fhevm-core-contracts/artifacts/gateway/GatewayContract.sol/GatewayContract.json");
+const gatewayArtifact = require("fhevm-core-contracts/artifacts/gateway/GatewayContract.sol/GatewayContract.json");
 
 const networkName = network.name;
 
@@ -27,25 +26,6 @@ const CiphertextType = {
   10: "bytes",
   11: "bytes",
 };
-
-let initNull = false;
-async function impersonateNullAddress() {
-  // for mocked mode
-  const nullAddress = "0x0000000000000000000000000000000000000000";
-  await network.provider.request({
-    method: "hardhat_impersonateAccount",
-    params: [nullAddress],
-  });
-  if (!initNull) {
-    await network.provider.send("hardhat_setBalance", [
-      nullAddress,
-      "0x56BC75E2D63100000", // 100 ETH in hex
-    ]);
-    initNull = true;
-  }
-  const nullSigner = await ethers.getSigner(nullAddress);
-  return nullSigner;
-}
 
 const currentTime = (): string => {
   const now = new Date();
@@ -142,7 +122,7 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
         await awaitCoprocessor();
 
         // first check tat all handles are allowed for decryption
-        const aclArtifact = require("../node_modules/fhevm-core-contracts/artifacts/contracts/ACL.sol/ACL.json");
+        const aclArtifact = require("fhevm-core-contracts/artifacts/contracts/ACL.sol/ACL.json");
         const acl = await ethers.getContractAt(aclArtifact.abi, ACL_ADDRESS);
         const isAllowedForDec = await Promise.all(handles.map(async (handle) => acl.isAllowedForDecryption(handle)));
         if (!allTrue(isAllowedForDec)) {
@@ -176,7 +156,7 @@ const fulfillAllPastRequestsIds = async (mocked: boolean) => {
 
         const numSigners = 1; // for the moment mocked mode only uses 1 signer
         const decryptResultsEIP712signatures = await computeDecryptSignatures(handles, calldata, numSigners);
-        const relayer = await impersonateNullAddress();
+        const relayer = await impersonateAddress(hre, ZeroAddress, ethers.parseEther("100"));
         await gateway
           .connect(relayer)
           .fulfillRequest(requestID, calldata, decryptResultsEIP712signatures, { value: msgValue });
