@@ -1,5 +1,6 @@
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 task("task:deployConfidentialERC20").setAction(async function (taskArguments: TaskArguments, { ethers }) {
   const signers = await ethers.getSigners();
@@ -11,7 +12,7 @@ task("task:deployConfidentialERC20").setAction(async function (taskArguments: Ta
 
 task("task:mint")
   .addParam("mint", "Tokens to mint")
-  .setAction(async function (taskArguments: TaskArguments, hre) {
+  .setAction(async function (taskArguments: TaskArguments, hre: HardhatRuntimeEnvironment) {
     const { ethers, deployments } = hre;
     const ERC20 = await deployments.get("MyConfidentialERC20");
 
@@ -19,7 +20,8 @@ task("task:mint")
 
     const erc20 = (await ethers.getContractAt("MyConfidentialERC20", ERC20.address)) as any;
 
-    await erc20.connect(signers[0]).mint(+taskArguments.mint);
-
-    console.log("Mint done: ", taskArguments.mint);
+    const tx = await erc20.connect(signers[0]).mint(+taskArguments.mint);
+    const rcpt = await tx.wait();
+    console.log("Mint tx hash: ", rcpt.hash);
+    console.log("Mint done: ", taskArguments.mint, "tokens were minted succesfully");
   });
