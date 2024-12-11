@@ -81,14 +81,14 @@ devDependencies:
     specifier: ^1.1.18
     version: 1.2.0
   fhevm:
-    specifier: ^0.6.1-0
-    version: 0.6.1-0
+    specifier: ^0.6.1
+    version: 0.6.1
   fhevm-contracts:
     specifier: ^0.2.0
     version: 0.2.0
   fhevm-core-contracts:
-    specifier: ^0.6.1-0
-    version: 0.6.1-0
+    specifier: ^0.6.1
+    version: 0.6.1
   fhevmjs:
     specifier: ^0.6.1
     version: 0.6.1
@@ -3192,12 +3192,12 @@ packages:
       - supports-color
     dev: true
 
-  /fhevm-core-contracts@0.6.1-0:
-    resolution: {integrity: sha512-4UrR/SMdR/uNla7zkzd812ppcIovnJfDYIAY1FxM2E5ZSe2+4xXhVlQlcwyQ+ak2lDUhP29MixIORTJN+zZ4vA==}
+  /fhevm-core-contracts@0.6.1:
+    resolution: {integrity: sha512-lZsnuEgLsGME5LPPhwAHyXUuURqP6Lp2orA7pH32ybSGo8ZJe9cmyL84uQk3bUGn2mGG+8rU8KZ8FGR5sWfhdA==}
     dev: true
 
-  /fhevm@0.6.1-0:
-    resolution: {integrity: sha512-ItN5k9vpx5nnY2yZbaODpyKZWYt35RCShpnM+LuEiJuD1k/diGjZfuAm5rQ9eJVKG/d+R2bBxsdcfoQlUzowtQ==}
+  /fhevm@0.6.1:
+    resolution: {integrity: sha512-L/tmIuqusjhZwCgDqTRWicOtasmE2G2sdFObNYn6ZBrBjL0SnvneSeUSGN/ExL1dAwt16Nyw2Tbom2uVQwJwcA==}
     engines: {node: '>=20.0.0'}
     dependencies:
       '@openzeppelin/contracts': 5.1.0
