@@ -11,7 +11,7 @@ task("mint")
     const ERC20 = await deployments.get("MyConfidentialERC20");
     const signers = await ethers.getSigners();
     const erc20 = (await ethers.getContractAt("MyConfidentialERC20", ERC20.address)) as MyConfidentialERC20;
-    const tx = await erc20.connect(signers[0]).mint(+taskArguments.amount);
+    const tx = await erc20.connect(signers[0]).mint(signers[0], +taskArguments.amount);
     const rcpt = await tx.wait();
     console.info("Mint tx hash: ", rcpt!.hash);
     console.info("Mint done: ", taskArguments.amount, "tokens were minted succesfully");
