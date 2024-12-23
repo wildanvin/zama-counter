@@ -1,3 +1,6 @@
+Compile contratcts: `pnpm compile`
+Run test: `npx hardhat test test/encryptedCounter1/encryptedCounter1.ts `
+
 # Hardhat Template [![Open in Gitpod][gitpod-badge]][gitpod] [![Github Actions][gha-badge]][gha] [![Hardhat][hardhat-badge]][hardhat] [![License: MIT][license-badge]][license]
 
 [gitpod]: https://gitpod.io/#https://github.com/zama-ai/fhevm-hardhat-template
